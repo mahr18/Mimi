@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, CalendarDays, ExternalLink, Film, Star } from "lucide-react";
+import { ArrowRight, CalendarDays, Film, Star, PlayCircle } from "lucide-react";
 
 type TVmazeChannel = { name: string; officialSite?: string | null };
 type TVmazeShow = {
@@ -35,16 +35,6 @@ type TVmazeEpisode = {
 
 function cleanSummary(value: string | null) {
   return (value ?? "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\s+/g, " ").trim();
-}
-
-function isHttpUrl(value: string | null | undefined): value is string {
-  if (!value) return false;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" || url.protocol === "http:";
-  } catch {
-    return false;
-  }
 }
 
 async function getShow(id: string) {
@@ -89,13 +79,11 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
   }
   const summary = cleanSummary(show.summary);
   const channel = show.webChannel ?? show.network;
-  const channelSite = isHttpUrl(channel?.officialSite) ? channel.officialSite : null;
-  const showSite = isHttpUrl(show.officialSite) ? show.officialSite : null;
 
   return (
     <main className="site-shell min-h-screen">
       <header className="container flex h-[82px] items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-rose-600 text-lg font-black">D</span><span className="text-xl font-black">dizi<span className="text-rose-400">.</span></span></Link>
+        <Link href="/" className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-rose-400 to-rose-700 text-white"><Film size={19}/></span><span className="text-xl font-black">VIP <span className="text-rose-400">TV</span></span></Link>
         <Link href="/#discover" className="flex items-center gap-2 text-sm text-zinc-300 hover:text-white"><ArrowRight size={17} /> العودة للاكتشاف</Link>
       </header>
 
@@ -113,13 +101,9 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
               <span className="flex items-center gap-2"><Film size={16} /> {episodes.length} حلقة مسجلة</span>
               {channel?.name && <span>القناة/المنصة: {channel.name}</span>}
             </div>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <a href={show.url} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm hover:bg-white/5">صفحة TVmaze <ExternalLink size={15} /></a>
-              {showSite && <a href={showSite} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-3 text-sm font-bold hover:bg-rose-500">الموقع الرسمي للعمل <ExternalLink size={15} /></a>}
-              {channelSite && channelSite !== showSite && <a href={channelSite} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-2 rounded-xl border border-emerald-400/25 bg-emerald-400/[.07] px-4 py-3 text-sm font-bold text-emerald-200 hover:bg-emerald-400/10">موقع القناة/المنصة <ExternalLink size={15} /></a>}
+            <div className="mt-7 rounded-2xl border border-rose-400/15 bg-rose-400/[.05] p-4">
+              <div className="flex items-start gap-3"><PlayCircle size={22} className="mt-0.5 shrink-0 text-rose-300"/><div><p className="font-bold">المشاهدة داخل VIP TV</p><p className="mt-1 text-sm leading-6 text-zinc-400">لا يوجد لهذا المسلسل حاليًا مصدر فيديو مخوّل ومتحقق منه. لن نعرض زر مشاهدة وهميًا أو نرسل الزائر إلى موقع آخر.</p></div></div>
             </div>
-            {!showSite && !channelSite && <p className="mt-4 text-xs leading-6 muted">لم يوفّر مصدر البيانات رابطًا رسميًا موثوقًا لهذا العمل أو قناته. لن نخمن رابط المشاهدة؛ يمكنك استخدام دليل المصادر الرسمية في الصفحة الرئيسية.</p>}
-            {(showSite || channelSite) && <p className="mt-4 text-xs leading-6 muted">هذه روابط مواقع رسمية مسجلة في بيانات TVmaze، لكنها لا تؤكد أن الحلقات متاحة للمشاهدة في منطقتك. تحقّق من صفحة العمل وشروط المنصة.</p>}
           </div>
         </div>
       </section>
@@ -131,13 +115,13 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
             <h3 className="mb-3 text-lg font-extrabold">الموسم {season} <span className="text-sm font-normal muted">· {list.length} حلقة</span></h3>
             <div className="grid gap-3 md:grid-cols-2">
               {list.map((episode) => <article key={episode.id} className="glass rounded-2xl p-4">
-                <div className="flex items-start justify-between gap-3"><div><h4 className="font-bold">{episode.number ? `الحلقة ${episode.number}: ` : ""}{episode.name}</h4><p className="mt-1 text-xs muted">{[episode.airdate, episode.runtime ? `${episode.runtime} دقيقة` : null].filter(Boolean).join(" · ") || "لا تتوفر تفاصيل إضافية"}</p></div><a href={episode.url} target="_blank" rel="noreferrer noopener" aria-label={`فتح الحلقة ${episode.name} في TVmaze`} className="shrink-0 rounded-lg border border-white/10 p-2 text-rose-300 hover:bg-white/5"><ExternalLink size={15} /></a></div>
+                <div className="flex items-start justify-between gap-3"><div><h4 className="font-bold">{episode.number ? `الحلقة ${episode.number}: ` : ""}{episode.name}</h4><p className="mt-1 text-xs muted">{[episode.airdate, episode.runtime ? `${episode.runtime} دقيقة` : null].filter(Boolean).join(" · ") || "لا تتوفر تفاصيل إضافية"}</p></div><span aria-label="المشاهدة غير متاحة" title="لا يوجد مصدر فيديو مخوّل" className="shrink-0 rounded-lg border border-white/10 p-2 text-zinc-600"><PlayCircle size={15}/></span></div>
                 {cleanSummary(episode.summary) && <p className="mt-3 text-sm leading-6 muted">{cleanSummary(episode.summary)}</p>}
               </article>)}
             </div>
           </section>)}
         </div>}
-        <p className="mt-8 border-t border-white/10 pt-5 text-xs leading-6 muted">مصدر البيانات: <a href="https://www.tvmaze.com/api" target="_blank" rel="noreferrer noopener" className="underline underline-offset-4">TVmaze API</a> (CC BY-SA؛ الإسناد والمشاركة بالمثل). الصور والبيانات لا تمنح حق بث المسلسل. تأكد من الحقوق قبل أي استخدام تجاري.</p>
+        <p className="mt-8 border-t border-white/10 pt-5 text-xs leading-6 muted">مصدر البيانات: TVmaze API (CC BY-SA؛ الإسناد والمشاركة بالمثل). الصور والبيانات لا تمنح حق بث المسلسل. تأكد من الحقوق قبل أي استخدام تجاري.</p>
       </section>
       <footer className="border-t border-white/[.07]"><div className="container py-6 text-xs muted">Dizi · دليل اكتشاف الأعمال ومصادرها الرسمية.</div></footer>
     </main>
