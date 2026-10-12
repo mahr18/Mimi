@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+build/
+.vercel/
+*.tsbuildinfo
+
+# Keep local credentials out of Git while retaining the documented template.
+.env*
+!.env.example
+

@@ -1,21 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-type Country = { code: string; name: string };
-type TVmazeShow = {
-  id: number;
-  name: string;
-  language: string | null;
-  genres: string[];
-  premiered: string | null;
-  summary: string | null;
-  url: string;
-  officialSite: string | null;
-  image: { medium?: string; original?: string } | null;
-  rating: { average: number | null } | null;
-  network: { country: Country | null } | null;
-  webChannel: { country: Country | null } | null;
-};
-type SearchItem = { score: number; show: TVmazeShow };
+import { safeHttpsUrl, safeTVmazeImageUrl, searchTVmaze, tvmazeErrorResponse, type TVMazeShow } from "@/lib/tvmaze";
 
 const discoveryQueries = [
   "Kurulus Osman",
@@ -28,7 +12,7 @@ const discoveryQueries = [
   "Magnificent Century"
 ];
 
-function normalizeShow(show: TVmazeShow) {
+function normalizeShow(show: TVMazeShow) {
   return {
     id: show.id,
     title: show.name,
@@ -36,24 +20,12 @@ function normalizeShow(show: TVmazeShow) {
     genres: show.genres ?? [],
     year: show.premiered?.slice(0, 4) ?? null,
     summary: (show.summary ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
-    sourceUrl: show.url,
-    imageUrl: show.image?.medium ?? null,
+    sourceUrl: `https://www.tvmaze.com/shows/${show.id}`,
+    imageUrl: safeTVmazeImageUrl(show.image?.medium),
     rating: show.rating?.average ?? null,
-    officialSite: show.officialSite ?? null,
+    officialSite: safeHttpsUrl(show.officialSite),
     countryCode: show.network?.country?.code ?? show.webChannel?.country?.code ?? null
   };
-}
-
-async function searchShows(query: string): Promise<SearchItem[]> {
-  const response = await fetch(
-    `https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`,
-    {
-      headers: { Accept: "application/json", "User-Agent": "DiziPlatform/0.2 (metadata discovery)" },
-      next: { revalidate: 3600 }
-    }
-  );
-  if (!response.ok) throw new Error("TVmaze search failed");
-  return (await response.json()) as SearchItem[];
 }
 
 export async function GET(request: NextRequest) {
@@ -67,9 +39,8 @@ export async function GET(request: NextRequest) {
 
   try {
     if (query) {
-      const items = await searchShows(query);
-      const results = items
-        .map((item) => item.show)
+      const shows = await searchTVmaze(query);
+      const results = shows
         .filter((show) => show.language?.toLowerCase() === "turkish")
         .slice(0, 12)
         .map(normalizeShow);
@@ -80,20 +51,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const responses = await Promise.all(
-      discoveryQueries.map(async (discoveryQuery) => {
-        try {
-          return await searchShows(discoveryQuery);
-        } catch {
-          return [];
-        }
-      })
-    );
+    const responses = await Promise.allSettled(discoveryQueries.map(searchTVmaze));
 
-    const unique = new Map<number, TVmazeShow>();
-    for (const items of responses) {
-      for (const item of items.slice(0, 5)) {
-        const show = item.show;
+    const unique = new Map<number, TVMazeShow>();
+    for (const response of responses) {
+      if (response.status === "rejected") continue;
+      const items = response.value;
+      for (const show of items.slice(0, 5)) {
         if (show.language?.toLowerCase() !== "turkish") continue;
         if (!unique.has(show.id)) unique.set(show.id, show);
       }
@@ -108,10 +72,12 @@ export async function GET(request: NextRequest) {
       { results, attribution: { name: "TVmaze", url: "https://www.tvmaze.com/" } },
       { headers: { "Cache-Control": "public, s-maxage=21600, stale-while-revalidate=86400" } }
     );
-  } catch {
+  } catch (error) {
+    const failure = tvmazeErrorResponse(error);
     return NextResponse.json(
-      { results: [], error: "تعذر تحميل المسلسلات الآن. حاول مرة أخرى بعد قليل." },
-      { status: 502 }
+      { results: [], error: failure.message },
+      { status: failure.status, headers: failure.headers }
     );
   }
 }
+

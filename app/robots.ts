@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { getPublicSiteUrl } from "@/lib/site-url";
 
 export default function robots(): MetadataRoute.Robots {
-  const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const configuredUrl = getPublicSiteUrl()?.origin;
   const isProductionReady = process.env.NODE_ENV === "production" && Boolean(configuredUrl);
 
   return {
@@ -13,3 +14,4 @@ export default function robots(): MetadataRoute.Robots {
     ...(configuredUrl ? { sitemap: `${configuredUrl.replace(/\/$/, "")}/sitemap.xml` } : {})
   };
 }
+

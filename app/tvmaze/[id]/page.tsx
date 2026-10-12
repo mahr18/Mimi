@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, CalendarDays, Film, Star, PlayCircle } from "lucide-react";
+import { safeTVmazeImageUrl } from "@/lib/tvmaze";
 
 type TVmazeChannel = { name: string; officialSite?: string | null };
 type TVmazeShow = {
@@ -39,21 +40,51 @@ function cleanSummary(value: string | null) {
 
 async function getShow(id: string) {
   if (!/^\d+$/.test(id) || Number(id) < 1 || Number(id) > 2147483647) return null;
-  const response = await fetch(`https://api.tvmaze.com/shows/${id}`, {
-    headers: { Accept: "application/json", "User-Agent": "DiziPlatform/0.1 (metadata discovery)" },
-    next: { revalidate: 3600 }
-  });
-  if (!response.ok) return null;
-  return (await response.json()) as TVmazeShow;
+  try {
+    const response = await fetch(`https://api.tvmaze.com/shows/${id}`, {
+      headers: { Accept: "application/json", "User-Agent": "VIPTV/0.1 (metadata discovery)" },
+      signal: AbortSignal.timeout(8_000),
+      next: { revalidate: 3600 }
+    });
+    if (response.status === 404) return null;
+    if (!response.ok) throw new Error("TVMAZE_SHOW_UNAVAILABLE");
+    const show: unknown = await response.json();
+    if (!show || typeof show !== "object" || Array.isArray(show)) throw new Error("TVMAZE_INVALID_SHOW");
+    const candidate = show as Partial<TVmazeShow>;
+    if (candidate.id !== Number(id) || typeof candidate.name !== "string" ||
+      !Array.isArray(candidate.genres) || !candidate.genres.every((genre) => typeof genre === "string")) {
+      throw new Error("TVMAZE_INVALID_SHOW");
+    }
+    return candidate as TVmazeShow;
+  } catch {
+    throw new Error("TVMAZE_SHOW_UNAVAILABLE");
+  }
 }
 
 async function getEpisodes(id: string): Promise<TVmazeEpisode[]> {
-  const response = await fetch(`https://api.tvmaze.com/shows/${id}/episodes`, {
-    headers: { Accept: "application/json", "User-Agent": "DiziPlatform/0.1 (metadata discovery)" },
-    next: { revalidate: 3600 }
-  });
-  if (!response.ok) return [];
-  return (await response.json()) as TVmazeEpisode[];
+  try {
+    const response = await fetch(`https://api.tvmaze.com/shows/${id}/episodes`, {
+      headers: { Accept: "application/json", "User-Agent": "VIPTV/0.1 (metadata discovery)" },
+      signal: AbortSignal.timeout(8_000),
+      next: { revalidate: 3600 }
+    });
+    if (response.status === 404) return [];
+    if (!response.ok) throw new Error("TVMAZE_EPISODES_UNAVAILABLE");
+    const episodes: unknown = await response.json();
+    if (!Array.isArray(episodes)) throw new Error("TVMAZE_INVALID_EPISODES");
+    return episodes.filter((episode): episode is TVmazeEpisode => Boolean(
+      episode && typeof episode === "object" &&
+      Number.isSafeInteger(episode.id) && typeof episode.name === "string" &&
+      Number.isSafeInteger(episode.season) &&
+      (episode.number === null || typeof episode.number === "number") &&
+      (episode.airdate === null || typeof episode.airdate === "string") &&
+      (episode.runtime === null || typeof episode.runtime === "number") &&
+      (episode.summary === null || typeof episode.summary === "string") &&
+      typeof episode.url === "string"
+    ));
+  } catch {
+    throw new Error("TVMAZE_EPISODES_UNAVAILABLE");
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -79,6 +110,7 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
   }
   const summary = cleanSummary(show.summary);
   const channel = show.webChannel ?? show.network;
+  const posterUrl = safeTVmazeImageUrl(show.image?.medium);
 
   return (
     <main className="site-shell min-h-screen">
@@ -89,7 +121,7 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
 
       <section className="hero-bg border-y border-white/[.06]">
         <div className="container grid gap-8 py-12 md:grid-cols-[240px_1fr] md:py-16">
-          {show.image?.medium ? <img src={show.image.medium} alt={`ملصق ${show.name}`} className="mx-auto w-full max-w-[240px] rounded-2xl border border-white/10 object-cover shadow-2xl" /> : <div className="poster mx-auto grid w-full max-w-[240px] place-items-center rounded-2xl text-7xl font-black text-rose-300">D</div>}
+          {posterUrl ? <img src={posterUrl} alt={`ملصق ${show.name}`} className="mx-auto w-full max-w-[240px] rounded-2xl border border-white/10 object-cover shadow-2xl" /> : <div className="poster mx-auto grid w-full max-w-[240px] place-items-center rounded-2xl text-7xl font-black text-rose-300">D</div>}
           <div className="self-center">
             <p className="mb-3 text-sm font-bold text-rose-300">معلومات من TVmaze</p>
             <h1 className="text-4xl font-black leading-tight sm:text-5xl">{show.name}</h1>
@@ -127,3 +159,4 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
     </main>
   );
 }
+
