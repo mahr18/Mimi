@@ -42,7 +42,7 @@ export default function HomePage() {
               <a href="#discover" className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-3 font-bold shadow-lg shadow-rose-950/40 transition hover:bg-rose-500"><Play size={17} fill="currentColor" /> اكتشف المسلسلات</a>
               <a href="#about" className="rounded-xl border border-white/10 px-5 py-3 font-semibold text-zinc-300 transition hover:bg-white/5">كيف تعمل المنصة؟</a>
             </div>
-            <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-xs text-zinc-400"><span className="flex items-center gap-2"><ShieldCheck size={15} className="text-emerald-400" /> مصادر مشاهدة مرخّصة</span><span>واجهة عربية بالكامل</span><span>اكتشاف وبحث سريع</span></div>
+            <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-xs text-zinc-400"><span className="flex items-center gap-2"><ShieldCheck size={15} className="text-emerald-400" /> روابط رسمية عند توفرها</span><span>واجهة عربية بالكامل</span><span>اكتشاف وبحث سريع</span></div>
           </div>
           <Link href="#discover" className="relative mx-auto block w-full max-w-[390px]">
             <div className="absolute -inset-5 rounded-[35px] bg-rose-600/10 blur-3xl" />
@@ -70,7 +70,7 @@ export default function HomePage() {
 
       <section id="latest" className="container pb-14">
         <div className="glass flex flex-col gap-5 rounded-3xl p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-          <div><p className="text-xs font-bold text-rose-300">خطوة بخطوة</p><h2 className="mt-2 text-xl font-extrabold">من اكتشاف المسلسل إلى مصدره الرسمي</h2><p className="mt-2 max-w-2xl text-sm leading-7 muted">في المرحلة القادمة نربط البيانات بمصادر موثوقة، ونضيف تفاصيل المواسم والحلقات وروابط المشاهدة المرخّصة بعد التحقق من الحقوق.</p></div>
+          <div><p className="text-xs font-bold text-rose-300">خطوة بخطوة</p><h2 className="mt-2 text-xl font-extrabold">من اكتشاف المسلسل إلى بياناته الرسمية</h2><p className="mt-2 max-w-2xl text-sm leading-7 muted">يمكنك استكشاف المعلومات والمواسم والحلقات المسجلة، والانتقال إلى صفحة TVmaze أو الموقع الرسمي إن توفر. لن نضيف روابط بث قبل التحقق من حق إتاحتها.</p></div>
           <span className="grid h-14 w-14 shrink-0 place-items-center self-start rounded-2xl bg-emerald-400/10 text-emerald-300 sm:self-center"><ShieldCheck size={27} /></span>
         </div>
       </section>
