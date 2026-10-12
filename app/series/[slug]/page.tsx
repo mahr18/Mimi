@@ -10,7 +10,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const series = getSeriesBySlug(slug);
-  return { title: series?.title ?? "مسلسل غير موجود", description: series?.synopsis };
+  return { title: series?.title ?? "مسلسل غير موجود", description: series?.synopsis, robots: { index: false, follow: false } };
 }
 
 export default async function SeriesDetailPage({ params }: { params: Promise<{ slug: string }> }) {
