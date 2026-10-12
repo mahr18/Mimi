@@ -36,4 +36,3 @@ export default function HomePage() {
     <footer className="border-t border-white/[.07] bg-black/20"><div className="container flex flex-col gap-3 py-6 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between"><span className="text-base font-black text-white">VIP <span className="text-rose-400">TV</span></span><span>منصة لاكتشاف المسلسلات ومعلوماتها ومصادر المشاهدة.</span><span>© {new Date().getFullYear()} VIP TV</span></div></footer>
   </main>;
 }
-

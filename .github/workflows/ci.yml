@@ -27,4 +27,3 @@ jobs:
         run: npm run typecheck
       - name: Build application
         run: npm run build
-

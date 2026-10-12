@@ -159,4 +159,3 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
     </main>
   );
 }
-

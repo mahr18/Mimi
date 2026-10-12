@@ -86,4 +86,3 @@ export function tvmazeErrorResponse(error: unknown) {
     headers: rateLimited ? { "Retry-After": "5" } : undefined
   };
 }
-

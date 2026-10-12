@@ -10,4 +10,3 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // publish the homepage until a licensed, persistent catalogue is available.
   return [{ url: base, changeFrequency: "daily", priority: 1 }];
 }
-
