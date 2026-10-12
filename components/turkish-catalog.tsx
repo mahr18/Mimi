@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { ExternalLink, Search, Star, ChevronLeft } from "lucide-react";
+import { Search, Star, ChevronLeft } from "lucide-react";
 
 type TurkishShow = {
   id: number;
@@ -88,7 +88,7 @@ export function TurkishCatalog() {
           <h2 className="section-title">مسلسلات باللغة التركية</h2>
           <p className="mt-2 max-w-2xl text-sm leading-7 muted">ابحث باسم المسلسل، وستُعرض النتائج التي يحدد TVmaze أن لغتها الأصلية تركية. النتائج ليست فهرسًا شاملًا.</p>
         </div>
-        <a href="https://www.tvmaze.com/api" target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-2 text-xs text-zinc-300 underline underline-offset-4 hover:text-white">مصدر البيانات <ExternalLink size={13} /></a>
+        <span className="text-xs text-zinc-500">بيانات تعريفية من TVmaze</span>
       </div>
 
       <form onSubmit={handleSearch} className="mb-6 flex flex-col gap-3 sm:flex-row">
@@ -117,7 +117,6 @@ export function TurkishCatalog() {
 
       {!loading && !error && shows.length > 0 && <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {shows.map((show) => {
-          const officialSite = safeHttpUrl(show.officialSite);
           return <article key={show.id} className="group min-w-0">
             <Link href={`/tvmaze/${show.id}`} className="block overflow-hidden rounded-2xl border border-white/10 bg-[#12151d] transition hover:-translate-y-1 hover:border-rose-400/50">
               <div className="relative aspect-[2/3] bg-white/5">
@@ -131,7 +130,6 @@ export function TurkishCatalog() {
               {show.summary && <p className="mt-2 line-clamp-3 text-xs leading-5 text-zinc-400">{show.summary.replace(/<[^>]*>/g, "").slice(0, 155)}{show.summary.length > 155 ? "…" : ""}</p>}
               <div className="mt-3 flex flex-wrap gap-2">
                 <Link href={`/tvmaze/${show.id}`} className="inline-flex items-center gap-1 rounded-lg bg-rose-500/10 px-2.5 py-2 text-xs font-bold text-rose-200 hover:bg-rose-500/20">التفاصيل والحلقات <ChevronLeft size={12}/></Link>
-                {officialSite && <a href={officialSite} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 rounded-lg border border-emerald-400/20 px-2.5 py-2 text-xs text-emerald-200 hover:bg-emerald-400/10">المصدر الرسمي <ExternalLink size={11} /></a>}
               </div>
             </div>
           </article>;
