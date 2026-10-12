@@ -110,6 +110,8 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
     list.push(episode);
     seasons.set(episode.season, list);
   }
+  const playbackByEpisodeId = new Map(episodes.map((episode) => [episode.id, getAuthorizedPlayback(episode.id)]));
+  const playableEpisodeCount = [...playbackByEpisodeId.values()].filter(Boolean).length;
   const summary = cleanSummary(show.summary);
   const channel = show.webChannel ?? show.network;
   const posterUrl = safeTVmazeImageUrl(show.image?.medium);
@@ -136,7 +138,7 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
               {channel?.name && <span>القناة/المنصة: {channel.name}</span>}
             </div>
             <div className="mt-7 rounded-2xl border border-rose-400/15 bg-rose-400/[.05] p-4">
-              <div className="flex items-start gap-3"><PlayCircle size={22} className="mt-0.5 shrink-0 text-rose-300"/><div><p className="font-bold">المشاهدة داخل VIP TV</p><p className="mt-1 text-sm leading-6 text-zinc-400">تظهر المشاهدة داخل الصفحة عند إعداد مزود بث مخوّل والتحقق من حقوق هذا العمل. بيانات المسلسل وحدها لا توفر فيديو.</p></div></div>
+              <div className="flex items-start gap-3"><PlayCircle size={22} className="mt-0.5 shrink-0 text-rose-300"/><div><p className="font-bold">المشاهدة داخل VIP TV</p><p className="mt-1 text-sm leading-6 text-zinc-400">{playableEpisodeCount > 0 ? `تتوفر ${playableEpisodeCount} حلقة عبر مشغل الناشر الرسمي داخل الصفحة. قد تختلف إمكانية التشغيل والترجمة حسب قيود YouTube.` : "لا يوجد حاليًا مصدر بث رسمي مربوط بحلقات هذا المسلسل. بيانات TVmaze تعرض معلومات الحلقات فقط، لذلك لن تعمل الحلقة حتى يتوفر فيديو من الناشر أو مزود مخوّل."}</p></div></div>
             </div>
           </div>
         </div>
@@ -147,7 +149,7 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
         {episodes.length === 0 ? <div className="glass rounded-2xl p-6 text-sm muted">لا توجد بيانات حلقات متاحة لهذا العمل.</div> : <div className="space-y-7">
           {Array.from(seasons.entries()).sort(([a], [b]) => a - b).map(([season, list]) => <section key={season}>
             <h3 className="mb-3 text-lg font-extrabold">الموسم {season} <span className="text-sm font-normal muted">· {list.length} حلقة</span></h3>
-            <AuthorizedEpisodeList episodes={list.map((episode) => ({ id: episode.id, name: episode.name, number: episode.number, airdate: episode.airdate, runtime: episode.runtime, summary: cleanSummary(episode.summary), playback: getAuthorizedPlayback(episode.id) }))} />
+            <AuthorizedEpisodeList episodes={list.map((episode) => ({ id: episode.id, name: episode.name, number: episode.number, airdate: episode.airdate, runtime: episode.runtime, summary: cleanSummary(episode.summary), playback: playbackByEpisodeId.get(episode.id) ?? null }))} />
           </section>)}
         </div>}
         <p className="mt-8 border-t border-white/10 pt-5 text-xs leading-6 muted">مصدر البيانات: TVmaze API (CC BY-SA؛ الإسناد والمشاركة بالمثل). الصور والبيانات لا تمنح حق بث المسلسل. تأكد من الحقوق قبل أي استخدام تجاري.</p>
@@ -156,3 +158,4 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
     </main>
   );
 }
+

@@ -7,7 +7,10 @@ const nextConfig: NextConfig = {
     remotePatterns: [{ protocol: "https", hostname: "image.tmdb.org" }]
   },
   async headers() {
-    const embedOrigins = parsePlaybackOrigins(process.env.PLAYBACK_EMBED_ORIGINS);
+    const embedOrigins = [...new Set([
+      "https://www.youtube-nocookie.com",
+      ...parsePlaybackOrigins(process.env.PLAYBACK_EMBED_ORIGINS)
+    ])];
     const mediaOrigins = parsePlaybackOrigins(process.env.PLAYBACK_MEDIA_ORIGINS);
     const contentSecurityPolicy = [
       "frame-src 'self'" + (embedOrigins.length ? " " + embedOrigins.join(" ") : ""),
@@ -29,3 +32,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

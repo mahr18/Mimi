@@ -89,7 +89,10 @@ npm start
 
 بعد الحصول على موافقة صاحب الحقوق ومقدم الخدمة، تحقق من الاستخدام التجاري والمنطقة والتضمين. أضف الأصول HTTPS الدقيقة إلى PLAYBACK_EMBED_ORIGINS أو PLAYBACK_MEDIA_ORIGINS ثم أضف سجل الحلقة في lib/authorized-playback.ts بمعرّف الحلقة الصحيح، واسم المزود، واللغات، والمنطقة، وتاريخ المراجعة ومرجع إثبات الحقوق. اختبر CSP والتضمين والترجمة مع المزود قبل التفعيل. هذه البنية لا تمنح الحقوق ولا تتحقق قانونيًا من مستنداتها؛ بيانات TVmaze أو وجود مشغل لدى طرف آخر لا تثبت حق إعادة البث.
 
+يوجد حاليًا استثناء واحد لمصدر ناشر رسمي: الحلقة الأولى من Kara Sevda مضمّنة من قناة المسلسل الرسمية على YouTube، باستخدام مشغل YouTube Privacy Enhanced. مصدر الشركة المنتجة والتحقق التشغيلي موثقان في [سجل مزودي التشغيل](docs/authorized-playback.md). قد يمنع YouTube التشغيل حسب المنطقة أو تغييرات الناشر.
+
 
 ## Monetag
 
 Monetag remains disabled. Its current publisher rules prohibit material that infringes third-party rights; see [monetization readiness](docs/monetization-readiness.md).
+
