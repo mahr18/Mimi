@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { ExternalLink, Search, Star } from "lucide-react";
 
 type LiveShow = {
@@ -23,7 +23,7 @@ export function TVmazeSearch() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  async function search(event: React.FormEvent<HTMLFormElement>) {
+  async function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (query.trim().length < 2) {
       setError("اكتب حرفين على الأقل.");
