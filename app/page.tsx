@@ -2,11 +2,18 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, Play, Sparkles, ChevronLeft, ShieldCheck, Clapperboard, Menu } from "lucide-react";
+import { Search, Play, Sparkles, ChevronLeft, ShieldCheck, Clapperboard, Menu, ExternalLink } from "lucide-react";
 import { categories, seriesCatalog } from "@/lib/catalog";
 import { SeriesCard } from "@/components/series-card";
 import { TVmazeSearch } from "@/components/tvmaze-search";
 import { TurkishCatalog } from "@/components/turkish-catalog";
+
+const officialProviders = [
+  { name: "tabii", description: "منصة TRT للأعمال الأصلية والمسلسلات والبرامج.", url: "https://www.tabii.com/tr", tag: "منصة رقمية" },
+  { name: "Kanal D", description: "موقع القناة الرسمي، مع حلقات وأرشيف لبعض المسلسلات.", url: "https://www.kanald.com.tr/", tag: "قناة رسمية" },
+  { name: "NOW", description: "موقع القناة الرسمي، ويضم مسلسلات وأرشيفًا حسب التوفر.", url: "https://www.nowtv.com.tr/", tag: "قناة رسمية" },
+  { name: "Netflix Türkiye", description: "كتالوج الأعمال التركية المتاح على نتفلكس؛ يتطلب الاشتراك وقد يتغير حسب المنطقة.", url: "https://www.netflix.com/tr/browse/genre/81314775", tag: "اشتراك" },
+];
 
 export default function HomePage() {
   const [query, setQuery] = useState("");
@@ -26,6 +33,7 @@ export default function HomePage() {
         </Link>
         <nav className="hidden items-center gap-7 text-sm text-zinc-300 md:flex">
           <a href="#discover" className="transition hover:text-white">اكتشف</a>
+          <a href="#providers" className="transition hover:text-white">مصادر المشاهدة</a>
           <a href="#demo-library" className="transition hover:text-white">معاينة التصميم</a>
           <a href="#about" className="transition hover:text-white">عن المنصة</a>
         </nav>
@@ -40,7 +48,7 @@ export default function HomePage() {
             <p className="mt-6 max-w-xl text-base leading-8 text-zinc-400 sm:text-lg">دليلك لاكتشاف المسلسلات التركية، قصصها ومواسمها وحلقاتها، مع توجيهك إلى مصادر المشاهدة الرسمية المتاحة.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#discover" className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-3 font-bold shadow-lg shadow-rose-950/40 transition hover:bg-rose-500"><Play size={17} fill="currentColor" /> اكتشف المسلسلات</a>
-              <a href="#about" className="rounded-xl border border-white/10 px-5 py-3 font-semibold text-zinc-300 transition hover:bg-white/5">كيف تعمل المنصة؟</a>
+              <a href="#providers" className="rounded-xl border border-white/10 px-5 py-3 font-semibold text-zinc-300 transition hover:bg-white/5">مصادر مشاهدة رسمية</a>
             </div>
             <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-xs text-zinc-400"><span className="flex items-center gap-2"><ShieldCheck size={15} className="text-emerald-400" /> روابط رسمية عند توفرها</span><span>واجهة عربية بالكامل</span><span>اكتشاف وبحث سريع</span></div>
           </div>
@@ -58,6 +66,24 @@ export default function HomePage() {
       </section>
 
       <TurkishCatalog />
+
+      <section id="providers" className="container scroll-mt-6 py-14">
+        <div className="max-w-2xl">
+          <p className="mb-2 text-sm font-bold text-rose-300">مصادر رسمية</p>
+          <h2 className="section-title">أين تتابع المسلسلات؟</h2>
+          <p className="mt-3 text-sm leading-7 muted">هذه روابط مباشرة إلى مواقع القنوات والمنصات الرسمية، وليست ضمانًا بأن مسلسلًا بعينه متاح فيها. تختلف الحقوق والاشتراكات والتوفر حسب العمل والبلد والوقت؛ تحقّق من صفحة المسلسل قبل المشاهدة.</p>
+        </div>
+        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {officialProviders.map((provider) => (
+            <a key={provider.name} href={provider.url} target="_blank" rel="noreferrer noopener" className="glass group rounded-2xl p-5 transition hover:-translate-y-1 hover:border-rose-400/30">
+              <div className="flex items-start justify-between gap-3"><span className="rounded-full border border-rose-400/20 bg-rose-400/[.07] px-2.5 py-1 text-[11px] text-rose-200">{provider.tag}</span><ExternalLink size={17} className="text-zinc-500 transition group-hover:text-rose-300" /></div>
+              <h3 className="mt-5 text-lg font-extrabold">{provider.name}</h3>
+              <p className="mt-2 min-h-[72px] text-sm leading-6 muted">{provider.description}</p>
+              <span className="mt-4 inline-flex text-sm font-bold text-rose-300">فتح الموقع الرسمي ←</span>
+            </a>
+          ))}
+        </div>
+      </section>
 
       <section id="demo-library" className="container scroll-mt-6 py-14">
         <div className="flex flex-wrap items-end justify-between gap-5">
