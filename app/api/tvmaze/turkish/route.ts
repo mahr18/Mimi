@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 type Country = { code: string; name: string };
 type TVmazeShow = {
@@ -17,8 +17,6 @@ type TVmazeShow = {
 };
 type SearchItem = { score: number; show: TVmazeShow };
 
-// These are discovery queries, not a hard-coded catalogue. Results are accepted only
-// when TVmaze identifies the show's language as Turkish.
 const discoveryQueries = [
   "Kurulus Osman",
   "Yargi",
@@ -30,19 +28,65 @@ const discoveryQueries = [
   "Magnificent Century"
 ];
 
-export async function GET() {
+function normalizeShow(show: TVmazeShow) {
+  return {
+    id: show.id,
+    title: show.name,
+    language: show.language,
+    genres: show.genres ?? [],
+    year: show.premiered?.slice(0, 4) ?? null,
+    summary: (show.summary ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
+    sourceUrl: show.url,
+    imageUrl: show.image?.medium ?? null,
+    rating: show.rating?.average ?? null,
+    officialSite: show.officialSite ?? null,
+    countryCode: show.network?.country?.code ?? show.webChannel?.country?.code ?? null
+  };
+}
+
+async function searchShows(query: string): Promise<SearchItem[]> {
+  const response = await fetch(
+    `https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`,
+    {
+      headers: { Accept: "application/json", "User-Agent": "DiziPlatform/0.2 (metadata discovery)" },
+      next: { revalidate: 3600 }
+    }
+  );
+  if (!response.ok) throw new Error("TVmaze search failed");
+  return (await response.json()) as SearchItem[];
+}
+
+export async function GET(request: NextRequest) {
+  const query = (request.nextUrl.searchParams.get("q") ?? "").trim();
+  if (query && (query.length < 2 || query.length > 80)) {
+    return NextResponse.json(
+      { results: [], error: "اكتب حرفين على الأقل، وبحد أقصى 80 حرفًا." },
+      { status: 400 }
+    );
+  }
+
   try {
+    if (query) {
+      const items = await searchShows(query);
+      const results = items
+        .map((item) => item.show)
+        .filter((show) => show.language?.toLowerCase() === "turkish")
+        .slice(0, 12)
+        .map(normalizeShow);
+
+      return NextResponse.json(
+        { results, query, attribution: { name: "TVmaze", url: "https://www.tvmaze.com/" } },
+        { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } }
+      );
+    }
+
     const responses = await Promise.all(
-      discoveryQueries.map(async (query) => {
-        const response = await fetch(
-          `https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`,
-          {
-            headers: { Accept: "application/json", "User-Agent": "DiziPlatform/0.1 (metadata discovery)" },
-            next: { revalidate: 21600 }
-          }
-        );
-        if (!response.ok) return [];
-        return (await response.json()) as SearchItem[];
+      discoveryQueries.map(async (discoveryQuery) => {
+        try {
+          return await searchShows(discoveryQuery);
+        } catch {
+          return [];
+        }
       })
     );
 
@@ -58,19 +102,7 @@ export async function GET() {
     const results = [...unique.values()]
       .sort((a, b) => (b.rating?.average ?? 0) - (a.rating?.average ?? 0))
       .slice(0, 24)
-      .map((show) => ({
-        id: show.id,
-        title: show.name,
-        language: show.language,
-        genres: show.genres ?? [],
-        year: show.premiered?.slice(0, 4) ?? null,
-        summary: (show.summary ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
-        sourceUrl: show.url,
-        imageUrl: show.image?.medium ?? null,
-        rating: show.rating?.average ?? null,
-        officialSite: show.officialSite ?? null,
-        countryCode: show.network?.country?.code ?? show.webChannel?.country?.code ?? null
-      }));
+      .map(normalizeShow);
 
     return NextResponse.json(
       { results, attribution: { name: "TVmaze", url: "https://www.tvmaze.com/" } },
@@ -78,7 +110,7 @@ export async function GET() {
     );
   } catch {
     return NextResponse.json(
-      { results: [], error: "تعذر تحميل كتالوج المسلسلات الآن. جرّب البحث المباشر أدناه." },
+      { results: [], error: "تعذر تحميل المسلسلات الآن. حاول مرة أخرى بعد قليل." },
       { status: 502 }
     );
   }
