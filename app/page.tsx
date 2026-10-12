@@ -1,7 +1,11 @@
 "use client";
 import Link from "next/link";
+import Script from "next/script";
 import { Clapperboard, Search, Play, Sparkles, ChevronLeft, Heart, Languages, Zap } from "lucide-react";
 import { TurkishCatalog } from "@/components/turkish-catalog";
+
+const adsClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
+const adsSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT;
 
 export default function HomePage() {
   return <main className="site-shell min-h-screen">
@@ -25,7 +29,7 @@ export default function HomePage() {
       </div>
     </section>
     <section className="container pt-8"><div className="grid gap-3 sm:grid-cols-3">{[{label:"مسلسلات تركية",icon:Clapperboard},{label:"الأكثر بحثًا",icon:Sparkles},{label:"أعمال جديدة",icon:Zap}].map(({label,icon:Icon})=><a key={label} href="#discover" className="quick-tile group flex items-center justify-between rounded-2xl border border-white/[.07] bg-white/[.025] p-4 hover:border-rose-400/30"><span className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-white/[.05] text-rose-300"><Icon size={18}/></span><span className="text-sm font-bold">{label}</span></span><ChevronLeft size={16} className="text-zinc-600"/></a>)}</div></section>
-    <div className="container py-8"><div className="ad-slot rounded-2xl px-4 py-4 text-center"><span className="mb-1 block text-[10px] font-bold tracking-[.22em] text-zinc-600">ADVERTISEMENT</span><span className="text-xs text-zinc-500">مساحة إعلانية — تُفعّل بعد ربط شبكة إعلانات معتمدة</span></div></div>
+    <div className="container py-8">{adsClient && adsSlot ? <div className="ad-slot min-h-[100px] overflow-hidden rounded-2xl px-3 py-3 text-center"><span className="mb-2 block text-[10px] font-bold tracking-[.22em] text-zinc-600">إعلان</span><Script id="vip-tv-adsense" async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsClient}`} crossOrigin="anonymous" strategy="afterInteractive" onReady={() => { try { const adsWindow = window as Window & { adsbygoogle?: Record<string, unknown>[] }; (adsWindow.adsbygoogle ||= []).push({}); } catch {} }} /><ins className="adsbygoogle" style={{ display: "block", minHeight: 70 }} data-ad-client={adsClient} data-ad-slot={adsSlot} data-ad-format="auto" data-full-width-responsive="true" /></div> : <div className="ad-slot rounded-2xl px-4 py-4 text-center"><span className="mb-1 block text-[10px] font-bold tracking-[.22em] text-zinc-600">ADVERTISEMENT</span><span className="text-xs text-zinc-500">مساحة الإعلان جاهزة — أضف معرّف الناشر ورقم الوحدة الإعلانية في إعدادات Vercel لتفعيلها.</span></div>}</div>
     <section id="latest" className="container scroll-mt-24 pt-4"><div className="mb-5"><p className="mb-2 text-xs font-bold tracking-wide text-rose-300">مكتبة متجددة</p><h2 className="text-2xl font-black tracking-tight sm:text-3xl">اكتشف مسلسلك القادم</h2><p className="mt-2 text-sm leading-7 text-zinc-500">ملصقات وقصص وتفاصيل من قاعدة بيانات مباشرة، وليست أسماء تجريبية.</p></div></section>
     <TurkishCatalog/>
     <section id="about" className="container pb-12 pt-4"><div className="rounded-3xl border border-white/[.07] bg-gradient-to-l from-rose-500/[.07] via-white/[.025] to-transparent p-6 sm:p-8"><div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><div className="max-w-2xl"><p className="text-xs font-bold text-rose-300">VIP TV</p><h2 className="mt-2 text-xl font-black">واجهة بسيطة. بحث أوضح. تفاصيل أكثر.</h2><p className="mt-2 text-sm leading-7 text-zinc-400">نعرض بيانات المسلسلات والحلقات من مصادر معلوماتية، ونربط المشاهدة فقط عند توفر مصدر مخوّل. تشغيل الإعلانات الفعلية يتطلب ربط حساب شبكة إعلانية والموافقة على الموقع.</p></div><a href="#discover" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-bold hover:bg-white/[.06]"><Search size={16}/> ابحث الآن</a></div></div></section>
