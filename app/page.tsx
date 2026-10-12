@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Clapperboard, Search, Play, Sparkles, ShieldCheck, ChevronLeft, Heart, Languages, Zap } from "lucide-react";
+import { Clapperboard, Search, Play, Sparkles, ChevronLeft, Heart, Languages, Zap } from "lucide-react";
 import { TurkishCatalog } from "@/components/turkish-catalog";
 
 export default function HomePage() {
