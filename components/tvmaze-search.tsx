@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { ExternalLink, Search, Star } from "lucide-react";
 
 type LiveShow = {
@@ -56,7 +57,7 @@ export function TVmazeSearch() {
       {searched && !loading && !error && results.length === 0 && <p className="mt-5 text-sm muted">ما ظهرت نتائج لهذا البحث.</p>}
       {results.length > 0 && <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{results.map((show) => <article key={show.id} className="glass flex gap-4 rounded-2xl p-4">
         {show.imageUrl ? <img src={show.imageUrl} alt="" loading="lazy" className="h-28 w-[76px] shrink-0 rounded-lg object-cover bg-white/5" /> : <div className="grid h-28 w-[76px] shrink-0 place-items-center rounded-lg bg-white/5 text-2xl font-black text-rose-300">D</div>}
-        <div className="min-w-0"><h3 className="font-bold leading-6">{show.title}</h3><p className="mt-1 text-xs muted">{[show.year, show.language, show.genres.slice(0, 2).join(" · ")].filter(Boolean).join(" · ")}</p>{show.rating !== null && <p className="mt-2 flex items-center gap-1 text-xs text-amber-300"><Star size={12} fill="currentColor" />{show.rating}</p>}<div className="mt-3 flex flex-wrap gap-3 text-xs"><a className="inline-flex items-center gap-1 text-rose-300 hover:text-rose-200" href={show.sourceUrl} target="_blank" rel="noreferrer">TVmaze <ExternalLink size={12} /></a>{show.officialSite && <a className="inline-flex items-center gap-1 text-zinc-300 hover:text-white" href={show.officialSite} target="_blank" rel="noreferrer">الموقع الرسمي <ExternalLink size={12} /></a>}</div></div>
+        <div className="min-w-0"><h3 className="font-bold leading-6">{show.title}</h3><p className="mt-1 text-xs muted">{[show.year, show.language, show.genres.slice(0, 2).join(" · ")].filter(Boolean).join(" · ")}</p>{show.rating !== null && <p className="mt-2 flex items-center gap-1 text-xs text-amber-300"><Star size={12} fill="currentColor" />{show.rating}</p>}<div className="mt-3 flex flex-wrap gap-3 text-xs"><Link className="inline-flex items-center gap-1 text-rose-300 hover:text-rose-200" href={`/tvmaze/${show.id}`}>المواسم والحلقات</Link><a className="inline-flex items-center gap-1 text-zinc-300 hover:text-white" href={show.sourceUrl} target="_blank" rel="noreferrer">TVmaze <ExternalLink size={12} /></a>{show.officialSite && <a className="inline-flex items-center gap-1 text-zinc-300 hover:text-white" href={show.officialSite} target="_blank" rel="noreferrer">الموقع الرسمي <ExternalLink size={12} /></a>}</div></div>
       </article>)}</div>}
       <p className="mt-5 text-xs muted">البيانات: <a className="underline underline-offset-4" href="https://www.tvmaze.com/api" target="_blank" rel="noreferrer">TVmaze API</a> · CC BY-SA مع الإسناد وشروط المشاركة بالمثل.</p>
     </section>
