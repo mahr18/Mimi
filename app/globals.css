@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #090b10; color: #f5f5f6; font-family: Arial, Tahoma, sans-serif; }
+a { color: inherit; text-decoration: none; }
+button, input { font: inherit; }
+::selection { background: #e94358; color: white; }
+.site-shell { min-height: 100vh; overflow: hidden; }
+.container { width: min(1180px, calc(100% - 40px)); margin-inline: auto; }
+.glass { background: rgba(18, 21, 29, .78); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(16px); }
+.hero-bg { background: radial-gradient(ellipse at 80% 35%, rgba(233,67,88,.17), transparent 42%), radial-gradient(ellipse at 10% 80%, rgba(230,189,114,.08), transparent 35%); }
+.poster { aspect-ratio: 2 / 3; overflow: hidden; border-radius: 15px; background: linear-gradient(145deg,#282b37,#171922); position: relative; }
+.poster-art { position:absolute; inset:0; display:flex; align-items:flex-end; padding:16px; background: linear-gradient(180deg, transparent 25%, rgba(0,0,0,.88)); }
+.poster-art::before { content:""; position:absolute; width:75%; height:75%; top:-12%; left:12%; border-radius:50%; background:var(--glow,rgba(233,67,88,.24)); filter:blur(35px); }
+.poster-title { position:relative; font-weight:800; font-size:1.2rem; line-height:1.2; text-shadow:0 2px 15px #000; }
+.poster-meta { position:relative; color:#d5d5dc; font-size:.75rem; margin-top:7px; }
+.poster:hover { transform:translateY(-4px); border-color:rgba(233,67,88,.6); }
+.poster { transition:transform .2s ease,border-color .2s ease; border:1px solid rgba(255,255,255,.08); }
+.section-title { font-size:clamp(1.25rem,2.5vw,1.8rem); font-weight:800; letter-spacing:-.03em; }
+.muted { color:#9da1ae; }
+.pill { border:1px solid rgba(255,255,255,.1); border-radius:999px; padding:9px 15px; color:#c8cad2; white-space:nowrap; transition:.2s; }
+.pill:hover,.pill.active { color:#fff; border-color:#e94358; background:rgba(233,67,88,.12); }
+.search-field { width:100%; outline:none; background:#141720; border:1px solid rgba(255,255,255,.1); border-radius:13px; padding:13px 44px 13px 14px; color:#fff; }
+.search-field:focus { border-color:#e94358; box-shadow:0 0 0 3px rgba(233,67,88,.12); }
+@media (max-width:640px) { .container { width:calc(100% - 28px); } .poster-title { font-size:1rem; } .poster-art { padding:10px; } }
