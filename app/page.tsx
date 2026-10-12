@@ -6,11 +6,11 @@ import { Search, Play, Sparkles, ChevronLeft, ShieldCheck, Clapperboard, Menu } 
 import { categories, seriesCatalog } from "@/lib/catalog";
 import { SeriesCard } from "@/components/series-card";
 import { TVmazeSearch } from "@/components/tvmaze-search";
+import { TurkishCatalog } from "@/components/turkish-catalog";
 
 export default function HomePage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("الكل");
-  const featured = seriesCatalog.find((item) => item.featured) ?? seriesCatalog[0];
   const filtered = useMemo(() => seriesCatalog.filter((item) => {
     const matchesCategory = category === "الكل" || item.genre === category;
     const text = `${item.title} ${item.originalTitle} ${item.genre}`.toLowerCase();
@@ -26,7 +26,7 @@ export default function HomePage() {
         </Link>
         <nav className="hidden items-center gap-7 text-sm text-zinc-300 md:flex">
           <a href="#discover" className="transition hover:text-white">اكتشف</a>
-          <a href="#latest" className="transition hover:text-white">الأحدث</a>
+          <a href="#demo-library" className="transition hover:text-white">معاينة التصميم</a>
           <a href="#about" className="transition hover:text-white">عن المنصة</a>
         </nav>
         <a href="#discover" className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[.04] px-3 py-2 text-sm hover:border-rose-400/50"><Menu size={17} /><span className="hidden sm:inline">تصفّح المسلسلات</span></a>
@@ -44,23 +44,24 @@ export default function HomePage() {
             </div>
             <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-xs text-zinc-400"><span className="flex items-center gap-2"><ShieldCheck size={15} className="text-emerald-400" /> مصادر مشاهدة مرخّصة</span><span>واجهة عربية بالكامل</span><span>اكتشاف وبحث سريع</span></div>
           </div>
-          <Link href={`/series/${featured.slug}`} className="relative mx-auto block w-full max-w-[390px]">
+          <Link href="#discover" className="relative mx-auto block w-full max-w-[390px]">
             <div className="absolute -inset-5 rounded-[35px] bg-rose-600/10 blur-3xl" />
-            <div className="poster relative aspect-[4/5] rounded-[28px] border-white/10 shadow-2xl shadow-black/50" style={{ ["--glow" as string]: featured.palette }}>
-              <div className="absolute inset-0 flex items-center justify-center"><span className="text-[15rem] font-black opacity-20" style={{ color: featured.palette }}>{featured.symbol}</span></div>
-              <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-black/20 to-transparent" />
-              <div className="absolute right-5 top-5 rounded-full border border-white/15 bg-black/30 px-3 py-1.5 text-xs backdrop-blur">اختيار المحرّر</div>
+            <div className="poster relative aspect-[4/5] rounded-[28px] border-white/10 shadow-2xl shadow-black/50" style={{ ["--glow" as string]: "rgba(183,45,73,.42)" }}>
+              <div className="absolute inset-0 flex items-center justify-center"><span className="text-[15rem] font-black opacity-20 text-rose-300">D</span></div>
+              <div className="absolute right-5 top-5 rounded-full border border-white/15 bg-black/30 px-3 py-1.5 text-xs backdrop-blur">بيانات مباشرة</div>
               <div className="poster-art p-7">
-                <div><div className="mb-3 text-xs font-bold text-rose-300">{featured.originalTitle}</div><h2 className="text-3xl font-black">{featured.title}</h2><p className="mt-3 max-w-xs text-sm leading-7 text-zinc-300">{featured.synopsis}</p><span className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-black">اكتشف التفاصيل <ChevronLeft size={17} /></span></div>
+                <div><div className="mb-3 text-xs font-bold text-rose-300">DIZI · TVmaze</div><h2 className="text-3xl font-black">مسلسلات تركية حقيقية</h2><p className="mt-3 max-w-xs text-sm leading-7 text-zinc-300">اكتشف العناوين المتاحة، افتح تفاصيلها، وتصفح المواسم والحلقات المسجلة من مصدر البيانات.</p><span className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-black">تصفح المكتبة <ChevronLeft size={17} /></span></div>
               </div>
             </div>
           </Link>
         </div>
       </section>
 
-      <section id="discover" className="container scroll-mt-6 py-14">
+      <TurkishCatalog />
+
+      <section id="demo-library" className="container scroll-mt-6 py-14">
         <div className="flex flex-wrap items-end justify-between gap-5">
-          <div><p className="mb-2 text-sm font-bold text-rose-300">مكتبة DIZI</p><h2 className="section-title">اعثر على مسلسلك القادم</h2><p className="mt-2 text-sm muted">بيانات تجريبية لتطوير الواجهة — ليست قائمة بث فعلية.</p></div>
+          <div><p className="mb-2 text-sm font-bold text-rose-300">معاينة التصميم</p><h2 className="section-title">بطاقات تجريبية للواجهة</h2><p className="mt-2 text-sm muted">هذه العناوين خيالية لأغراض التصميم فقط؛ استخدم المكتبة المباشرة أعلاه للبحث عن عناوين حقيقية.</p></div>
           <div className="relative w-full sm:max-w-[310px]"><Search className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ابحث باسم المسلسل أو التصنيف..." className="search-field" aria-label="ابحث عن مسلسل" /></div>
         </div>
         <div className="mt-7 flex gap-2 overflow-x-auto pb-2">{categories.map((item) => <button key={item} onClick={() => setCategory(item)} className={`pill ${category === item ? "active" : ""}`}>{item}</button>)}</div>
