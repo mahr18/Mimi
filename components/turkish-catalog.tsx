@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { ExternalLink, Search, Star } from "lucide-react";
+import { ExternalLink, Search, Star, ChevronLeft } from "lucide-react";
 
 type TurkishShow = {
   id: number;
@@ -127,11 +127,11 @@ export function TurkishCatalog() {
             </Link>
             <div className="px-1 pt-3">
               <Link href={`/tvmaze/${show.id}`} className="line-clamp-2 text-sm font-bold leading-6 hover:text-rose-200">{show.title}</Link>
-              <p className="mt-1 text-xs muted">{[show.year, show.genres.slice(0, 1).join("")].filter(Boolean).join(" · ") || "مسلسل تركي"}</p>
-              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-2 text-xs">
-                <Link href={`/tvmaze/${show.id}`} className="text-rose-300 hover:text-rose-200">التفاصيل والحلقات</Link>
-                {officialSite && <a href={officialSite} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 text-emerald-300 hover:text-emerald-200">الموقع الرسمي <ExternalLink size={11} /></a>}
-                <a href={show.sourceUrl} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 text-zinc-400 hover:text-white">TVmaze <ExternalLink size={11} /></a>
+              <p className="mt-1 text-xs text-zinc-500">{[show.year, show.genres.slice(0, 1).join("")].filter(Boolean).join(" · ") || "مسلسل تركي"}</p>
+              {show.summary && <p className="mt-2 line-clamp-3 text-xs leading-5 text-zinc-400">{show.summary.replace(/<[^>]*>/g, "").slice(0, 155)}{show.summary.length > 155 ? "…" : ""}</p>}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link href={`/tvmaze/${show.id}`} className="inline-flex items-center gap-1 rounded-lg bg-rose-500/10 px-2.5 py-2 text-xs font-bold text-rose-200 hover:bg-rose-500/20">التفاصيل والحلقات <ChevronLeft size={12}/></Link>
+                {officialSite && <a href={officialSite} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 rounded-lg border border-emerald-400/20 px-2.5 py-2 text-xs text-emerald-200 hover:bg-emerald-400/10">المصدر الرسمي <ExternalLink size={11} /></a>}
               </div>
             </div>
           </article>;
