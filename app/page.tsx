@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, Play, Sparkles, ChevronLeft, ShieldCheck, Clapperboard, Menu } from "lucide-react";
 import { categories, seriesCatalog } from "@/lib/catalog";
 import { SeriesCard } from "@/components/series-card";
+import { TVmazeSearch } from "@/components/tvmaze-search";
 
 export default function HomePage() {
   const [query, setQuery] = useState("");
@@ -72,6 +73,8 @@ export default function HomePage() {
           <span className="grid h-14 w-14 shrink-0 place-items-center self-start rounded-2xl bg-emerald-400/10 text-emerald-300 sm:self-center"><ShieldCheck size={27} /></span>
         </div>
       </section>
+
+      <section className="container pb-14"><TVmazeSearch /></section>
 
       <footer id="about" className="border-t border-white/[.07]">
         <div className="container flex flex-col gap-4 py-7 text-xs muted sm:flex-row sm:items-center sm:justify-between"><span className="text-lg font-black text-white">dizi<span className="text-rose-400">.</span></span><span>منصة لاكتشاف الأعمال الدرامية ومصادرها الرسمية.</span><span>© {new Date().getFullYear()} Dizi · نموذج أولي</span></div>
