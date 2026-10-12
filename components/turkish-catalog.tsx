@@ -22,8 +22,19 @@ export function TurkishCatalog() {
   const [shows, setShows] = useState<TurkishShow[]>([]);
   const [query, setQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const availableGenres = [...new Set(shows.flatMap((show) => show.genres))].slice(0, 6);
+  const visibleShows = selectedGenre
+    ? shows.filter((show) => show.genres.includes(selectedGenre))
+    : shows;
+  const genreLabels: Record<string, string> = {
+    Action: "أكشن", Adventure: "مغامرة", Anime: "أنمي", Comedy: "كوميديا",
+    Crime: "جريمة", Drama: "دراما", Family: "عائلي", Fantasy: "فانتازيا",
+    Romance: "رومانسي", "Science-Fiction": "خيال علمي", Thriller: "تشويق"
+  };
 
   async function loadShows(searchTerm = "", signal?: AbortSignal) {
     setLoading(true);
@@ -97,30 +108,32 @@ export function TurkishCatalog() {
         {activeQuery && <button type="button" onClick={resetDiscovery} disabled={loading} className="rounded-xl border border-white/10 px-4 py-3 text-sm hover:bg-white/5 disabled:opacity-60">عرض الاكتشاف</button>}
       </form>
 
+      {!loading && !error && availableGenres.length > 0 && <div className="catalog-filters mb-6" aria-label="تصفية حسب النوع"><span className="catalog-filter-label">تصفية حسب النوع</span><div className="flex gap-2 overflow-x-auto pb-1">{["", ...availableGenres].map((genre) => <button key={genre || "all"} type="button" onClick={() => setSelectedGenre(genre)} aria-pressed={selectedGenre === genre} className={`catalog-chip ${selectedGenre === genre ? "catalog-chip-active" : ""}`}>{genre ? genreLabels[genre] ?? genre : "الكل"}</button>)}</div></div>}
+
       {activeQuery && !loading && <p className="mb-4 text-sm muted">نتائج البحث عن: <span className="font-semibold text-white">{activeQuery}</span></p>}
+      {!loading && !error && shows.length > 0 && <p className="mb-3 text-xs text-zinc-500">{selectedGenre ? `${genreLabels[selectedGenre] ?? selectedGenre} · ` : ""}{visibleShows.length} نتيجة من بيانات TVmaze</p>}
 
       {loading && <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">{Array.from({ length: 8 }, (_, index) => <div key={index} className="glass animate-pulse overflow-hidden rounded-2xl"><div className="aspect-[2/3] bg-white/5" /><div className="space-y-2 p-3"><div className="h-3 w-3/4 rounded bg-white/10" /><div className="h-3 w-1/2 rounded bg-white/5" /></div></div>)}</div>}
 
       {!loading && error && <div role="alert" className="glass rounded-2xl p-6"><p className="text-sm text-rose-200">{error}</p><button onClick={() => void loadShows(activeQuery)} className="mt-3 rounded-lg border border-white/10 px-4 py-2 text-sm hover:bg-white/5">إعادة المحاولة</button></div>}
 
       {!loading && !error && shows.length === 0 && <div className="glass rounded-2xl p-6 text-sm leading-7 muted">{activeQuery ? "ما لقينا نتائج مطابقة باللغة التركية لهذا الاسم في TVmaze. جرّب كتابة الاسم الأصلي أو تهجئة مختلفة." : "لم يُرجع المصدر نتائج مطابقة في قائمة الاكتشاف الحالية."}</div>}
+      {!loading && !error && shows.length > 0 && visibleShows.length === 0 && <div className="glass rounded-2xl p-6 text-sm leading-7 muted">ما فيه نتيجة من هذا النوع ضمن النتائج الحالية. جرّب نوعًا ثانيًا أو اختر «الكل».</div>}
 
-      {!loading && !error && shows.length > 0 && <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {shows.map((show) => {
+      {!loading && !error && visibleShows.length > 0 && <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4">
+        {visibleShows.map((show) => {
           return <article key={show.id} className="group min-w-0">
-            <Link href={`/tvmaze/${show.id}`} className="block overflow-hidden rounded-2xl border border-white/10 bg-[#12151d] transition hover:-translate-y-1 hover:border-rose-400/50">
-              <div className="relative aspect-[2/3] bg-white/5">
-                {show.imageUrl ? <img src={show.imageUrl} alt={`ملصق ${show.title}`} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]" /> : <div className="grid h-full place-items-center text-5xl font-black text-rose-300">{show.title.slice(0, 1)}</div>}
-                {show.rating !== null && <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/75 px-2.5 py-1 text-xs text-amber-300 backdrop-blur"><Star size={12} fill="currentColor" />{show.rating}</span>}
+            <Link href={`/tvmaze/${show.id}`} className="catalog-card block overflow-hidden rounded-2xl transition">
+              <div className="catalog-poster relative aspect-[.73] overflow-hidden bg-white/5">
+                {show.imageUrl ? <img src={show.imageUrl} alt={`ملصق ${show.title}`} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.06]" /> : <div className="grid h-full place-items-center bg-[radial-gradient(ellipse_at_top,#462332,#13131b_70%)] text-6xl font-black text-rose-200/70">{show.title.slice(0, 1)}</div>}
+                <div className="catalog-poster-shade absolute inset-0" />
+                {show.rating !== null && <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/65 px-2.5 py-1 text-xs text-amber-300 backdrop-blur"><Star size={12} fill="currentColor" />{show.rating}</span>}
+                <div className="absolute inset-x-3 bottom-3"><span className="rounded-full border border-white/20 bg-black/35 px-2.5 py-1 text-[10px] font-semibold text-white/90 backdrop-blur">{show.language === "Turkish" ? "تركي" : show.language}</span><p className="mt-2 line-clamp-2 text-sm font-extrabold leading-5 text-white drop-shadow sm:text-base">{show.title}</p></div>
               </div>
             </Link>
-            <div className="px-1 pt-3">
-              <Link href={`/tvmaze/${show.id}`} className="line-clamp-2 text-sm font-bold leading-6 hover:text-rose-200">{show.title}</Link>
-              <p className="mt-1 text-xs text-zinc-500">{[show.year, show.genres.slice(0, 1).join("")].filter(Boolean).join(" · ") || "مسلسل تركي"}</p>
-              {show.summary && <p className="mt-2 line-clamp-3 text-xs leading-5 text-zinc-400">{show.summary.replace(/<[^>]*>/g, "").slice(0, 155)}{show.summary.length > 155 ? "…" : ""}</p>}
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Link href={`/tvmaze/${show.id}`} className="inline-flex items-center gap-1 rounded-lg bg-rose-500/10 px-2.5 py-2 text-xs font-bold text-rose-200 hover:bg-rose-500/20">التفاصيل والحلقات <ChevronLeft size={12}/></Link>
-              </div>
+            <div className="px-1 pt-2.5">
+              <p className="truncate text-xs text-zinc-400">{[show.year, show.genres.slice(0, 1).map((genre) => genreLabels[genre] ?? genre).join("")].filter(Boolean).join(" · ") || "مسلسل تركي"}</p>
+              <Link href={`/tvmaze/${show.id}`} className="catalog-details mt-2 inline-flex items-center gap-1 text-xs font-bold">التفاصيل <ChevronLeft size={13}/></Link>
             </div>
           </article>;
         })}
@@ -130,3 +143,4 @@ export function TurkishCatalog() {
     </section>
   );
 }
+
