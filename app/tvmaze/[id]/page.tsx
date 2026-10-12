@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, CalendarDays, Film, Star, PlayCircle } from "lucide-react";
 import { safeTVmazeImageUrl } from "@/lib/tvmaze";
+import { getAuthorizedPlayback } from "@/lib/authorized-playback";
+import AuthorizedEpisodeList from "@/components/authorized-episode-list";
 
 type TVmazeChannel = { name: string; officialSite?: string | null };
 type TVmazeShow = {
@@ -134,7 +136,7 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
               {channel?.name && <span>القناة/المنصة: {channel.name}</span>}
             </div>
             <div className="mt-7 rounded-2xl border border-rose-400/15 bg-rose-400/[.05] p-4">
-              <div className="flex items-start gap-3"><PlayCircle size={22} className="mt-0.5 shrink-0 text-rose-300"/><div><p className="font-bold">المشاهدة داخل VIP TV</p><p className="mt-1 text-sm leading-6 text-zinc-400">لا يوجد لهذا المسلسل حاليًا مصدر فيديو مخوّل ومتحقق منه. لن نعرض زر مشاهدة وهميًا أو نرسل الزائر إلى موقع آخر.</p></div></div>
+              <div className="flex items-start gap-3"><PlayCircle size={22} className="mt-0.5 shrink-0 text-rose-300"/><div><p className="font-bold">المشاهدة داخل VIP TV</p><p className="mt-1 text-sm leading-6 text-zinc-400">تظهر المشاهدة داخل الصفحة عند إعداد مزود بث مخوّل والتحقق من حقوق هذا العمل. بيانات المسلسل وحدها لا توفر فيديو.</p></div></div>
             </div>
           </div>
         </div>
@@ -145,12 +147,7 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
         {episodes.length === 0 ? <div className="glass rounded-2xl p-6 text-sm muted">لا توجد بيانات حلقات متاحة لهذا العمل.</div> : <div className="space-y-7">
           {Array.from(seasons.entries()).sort(([a], [b]) => a - b).map(([season, list]) => <section key={season}>
             <h3 className="mb-3 text-lg font-extrabold">الموسم {season} <span className="text-sm font-normal muted">· {list.length} حلقة</span></h3>
-            <div className="grid gap-3 md:grid-cols-2">
-              {list.map((episode) => <article key={episode.id} className="glass rounded-2xl p-4">
-                <div className="flex items-start justify-between gap-3"><div><h4 className="font-bold">{episode.number ? `الحلقة ${episode.number}: ` : ""}{episode.name}</h4><p className="mt-1 text-xs muted">{[episode.airdate, episode.runtime ? `${episode.runtime} دقيقة` : null].filter(Boolean).join(" · ") || "لا تتوفر تفاصيل إضافية"}</p></div><span aria-label="المشاهدة غير متاحة" title="لا يوجد مصدر فيديو مخوّل" className="shrink-0 rounded-lg border border-white/10 p-2 text-zinc-600"><PlayCircle size={15}/></span></div>
-                {cleanSummary(episode.summary) && <p className="mt-3 text-sm leading-6 muted">{cleanSummary(episode.summary)}</p>}
-              </article>)}
-            </div>
+            <AuthorizedEpisodeList episodes={list.map((episode) => ({ id: episode.id, name: episode.name, number: episode.number, airdate: episode.airdate, runtime: episode.runtime, summary: cleanSummary(episode.summary), playback: getAuthorizedPlayback(episode.id) }))} />
           </section>)}
         </div>}
         <p className="mt-8 border-t border-white/10 pt-5 text-xs leading-6 muted">مصدر البيانات: TVmaze API (CC BY-SA؛ الإسناد والمشاركة بالمثل). الصور والبيانات لا تمنح حق بث المسلسل. تأكد من الحقوق قبل أي استخدام تجاري.</p>
