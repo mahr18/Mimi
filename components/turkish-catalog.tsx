@@ -43,7 +43,7 @@ export function TurkishCatalog() {
   }, []);
 
   return (
-    <section className="container py-12">
+    <section id="discover" className="container scroll-mt-6 py-12">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 text-sm font-bold text-rose-300">اكتشاف مباشر</p>
