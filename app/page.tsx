@@ -1,108 +1,34 @@
 "use client";
-
 import Link from "next/link";
-import { Clapperboard, Search, Play, Sparkles, ShieldCheck, ChevronLeft, Menu, MonitorPlay, Heart, Languages, Zap } from "lucide-react";
+import { Clapperboard, Search, Play, Sparkles, ShieldCheck, ChevronLeft, Heart, Languages, Zap } from "lucide-react";
 import { TurkishCatalog } from "@/components/turkish-catalog";
 
-const quickLinks = [
-  { label: "تركية", icon: Clapperboard, href: "#discover" },
-  { label: "الأكثر بحثًا", icon: Sparkles, href: "#discover" },
-  { label: "المفضلة", icon: Heart, href: "#discover" },
-];
-
 export default function HomePage() {
-  return (
-    <main className="site-shell min-h-screen">
-      <header className="sticky top-0 z-40 border-b border-white/[.07] bg-[#09090d]/85 backdrop-blur-xl">
-        <div className="container flex h-[72px] items-center justify-between gap-4">
-          <Link href="/" className="flex shrink-0 items-center gap-3" aria-label="VIP TV الصفحة الرئيسية">
-            <span className="brand-mark grid h-10 w-10 place-items-center rounded-xl text-white"><Clapperboard size={21} /></span>
-            <span className="leading-none"><span className="block text-xl font-black tracking-tight">VIP <span className="text-rose-400">TV</span></span><span className="mt-1.5 block text-[10px] tracking-wide text-zinc-500">عالم المسلسلات بين يديك</span></span>
-          </Link>
-          <nav className="hidden items-center gap-7 text-sm text-zinc-300 md:flex">
-            <a href="#discover" className="transition hover:text-white">اكتشف</a>
-            <a href="#latest" className="transition hover:text-white">المسلسلات</a>
-            <a href="#about" className="transition hover:text-white">عن VIP TV</a>
-          </nav>
-          <a href="#discover" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-sm font-semibold transition hover:border-rose-400/40 hover:bg-white/[.07]"><Search size={16}/><span className="hidden sm:inline">ابحث عن مسلسل</span><span className="sm:hidden">بحث</span></a>
-        </div>
-      </header>
-
-      <section className="vip-hero relative isolate overflow-hidden">
-        <div className="hero-orb hero-orb-one" />
-        <div className="hero-orb hero-orb-two" />
-        <div className="container relative grid min-h-[500px] items-center gap-10 py-14 md:grid-cols-[1.1fr_.9fr] md:py-20">
-          <div className="relative z-10">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-rose-300/20 bg-rose-400/[.08] px-3.5 py-2 text-xs font-semibold text-rose-200"><Sparkles size={14}/> مسلسلاتك المفضلة بمكان واحد</div>
-            <h1 className="max-w-2xl text-4xl font-black leading-[1.35] tracking-tight sm:text-5xl md:text-6xl">قصتك القادمة<br/><span className="vip-gradient-text">تبدأ بضغطة.</span></h1>
-            <p className="mt-5 max-w-xl text-sm leading-8 text-zinc-300 sm:text-base">اكتشف المسلسلات التركية، شاهد الملصقات والقصص وتفاصيل المواسم والحلقات، وابحث باسم المسلسل بالعربي أو التركي أو الإنجليزي.</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#discover" className="inline-flex items-center gap-2 rounded-xl bg-rose-500 px-5 py-3.5 text-sm font-extrabold shadow-lg shadow-rose-950/30 transition hover:-translate-y-0.5 hover:bg-rose-400"><Search size={17}/> ابدأ البحث</a>
-              <a href="#latest" className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[.04] px-5 py-3.5 text-sm font-bold text-zinc-100 transition hover:bg-white/[.08]"><Play size={16} fill="currentColor"/> تصفّح المكتبة</a>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-3 text-xs text-zinc-400">
-              <span className="inline-flex items-center gap-2"><Languages size={15} className="text-rose-300"/> واجهة عربية</span>
-              <span className="inline-flex items-center gap-2"><Zap size={15} className="text-amber-300"/> بحث سريع</span>
-              <span className="inline-flex items-center gap-2"><MonitorPlay size={15} className="text-emerald-300"/> تفاصيل الحلقات</span>
-            </div>
-          </div>
-          <div className="relative mx-auto w-full max-w-[440px]">
-            <div className="poster-stack">
-              <div className="poster-slab poster-slab-back"><span className="poster-slab-label">DRAMA</span></div>
-              <div className="poster-slab poster-slab-mid"><span className="poster-slab-label">ROMANCE</span></div>
-              <div className="poster-slab poster-slab-front">
-                <div className="poster-vignette"/>
-                <div className="absolute right-4 top-4 rounded-full border border-white/20 bg-black/30 px-3 py-1.5 text-[11px] font-bold backdrop-blur">VIP ORIGINAL STYLE</div>
-                <div className="absolute inset-x-5 bottom-6">
-                  <p className="mb-2 text-xs font-bold tracking-[.22em] text-rose-200">YOUR NEXT OBSESSION</p>
-                  <p className="text-3xl font-black leading-tight sm:text-4xl">حكايات<br/>لا تُنسى</p>
-                  <div className="mt-4 flex items-center gap-2 text-xs text-zinc-200"><span className="h-1.5 w-1.5 rounded-full bg-rose-400"/><span>دراما · رومانسية · تشويق</span></div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -bottom-3 -left-2 flex items-center gap-3 rounded-2xl border border-white/10 bg-[#17141b]/90 p-3.5 shadow-2xl backdrop-blur-xl sm:-left-5">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-rose-500/15 text-rose-300"><Play size={18} fill="currentColor"/></span>
-              <span><span className="block text-sm font-bold">ابدأ الاكتشاف</span><span className="mt-1 block text-[11px] text-zinc-500">اختر مسلسلًا يناسبك</span></span>
-              <ChevronLeft size={16} className="mr-2 text-zinc-500"/>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="container pt-8">
-        <div className="grid gap-3 sm:grid-cols-3">
-          {quickLinks.map(({label, icon: Icon, href}) => <a key={label} href={href} className="quick-tile group flex items-center justify-between rounded-2xl border border-white/[.07] bg-white/[.025] p-4 transition hover:border-rose-400/30 hover:bg-rose-400/[.04]"><span className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-white/[.05] text-rose-300 transition group-hover:bg-rose-400/10"><Icon size={18}/></span><span className="text-sm font-bold">{label}</span></span><ChevronLeft size={16} className="text-zinc-600 transition group-hover:-translate-x-1 group-hover:text-rose-300"/></a>)}
-        </div>
-      </section>
-
-      <div className="container py-8">
-        <div className="ad-slot rounded-2xl px-4 py-4 text-center">
-          <span className="mb-1 block text-[10px] font-bold tracking-[.22em] text-zinc-600">ADVERTISEMENT</span>
-          <span className="text-xs text-zinc-500">مساحة إعلانية — تُفعّل بعد ربط شبكة إعلانات معتمدة</span>
-        </div>
+  return <main className="site-shell min-h-screen">
+    <header className="sticky top-0 z-40 border-b border-white/[.07] bg-[#09090d]/85 backdrop-blur-xl">
+      <div className="container flex h-[72px] items-center justify-between gap-4">
+        <Link href="/" className="flex items-center gap-3" aria-label="VIP TV الصفحة الرئيسية"><span className="brand-mark grid h-10 w-10 place-items-center rounded-xl text-white"><Clapperboard size={21}/></span><span className="leading-none"><span className="block text-xl font-black">VIP <span className="text-rose-400">TV</span></span><span className="mt-1.5 block text-[10px] text-zinc-500">عالم المسلسلات بين يديك</span></span></Link>
+        <nav className="hidden items-center gap-7 text-sm text-zinc-300 md:flex"><a href="#discover" className="hover:text-white">اكتشف</a><a href="#latest" className="hover:text-white">المسلسلات</a><a href="#about" className="hover:text-white">عن المنصة</a></nav>
+        <a href="#discover" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-sm font-semibold hover:border-rose-400/40"><Search size={16}/><span className="hidden sm:inline">ابحث عن مسلسل</span><span className="sm:hidden">بحث</span></a>
       </div>
-
-      <section id="latest" className="container scroll-mt-24 pt-4">
-        <div className="mb-5 flex items-end justify-between gap-4">
-          <div><p className="mb-2 text-xs font-bold tracking-wide text-rose-300">مكتبة متجددة</p><h2 className="text-2xl font-black tracking-tight sm:text-3xl">اكتشف مسلسلك القادم</h2><p className="mt-2 text-sm leading-7 text-zinc-500">ملصقات وقصص وتفاصيل من قاعدة بيانات مباشرة، وليست أسماء تجريبية.</p></div>
-          <span className="hidden items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-xs text-zinc-400 sm:inline-flex"><ShieldCheck size={14} className="text-emerald-300"/> بيانات موثوقة المصدر</span>
+    </header>
+    <section className="vip-hero relative isolate overflow-hidden">
+      <div className="hero-orb hero-orb-one"/><div className="hero-orb hero-orb-two"/>
+      <div className="container relative grid min-h-[500px] items-center gap-10 py-14 md:grid-cols-[1.1fr_.9fr] md:py-20">
+        <div className="relative z-10"><div className="mb-6 inline-flex items-center gap-2 rounded-full border border-rose-300/20 bg-rose-400/[.08] px-3.5 py-2 text-xs font-semibold text-rose-200"><Sparkles size={14}/> مسلسلاتك المفضلة بمكان واحد</div>
+          <h1 className="max-w-2xl text-4xl font-black leading-[1.35] tracking-tight sm:text-5xl md:text-6xl">قصتك القادمة<br/><span className="vip-gradient-text">تبدأ بضغطة.</span></h1>
+          <p className="mt-5 max-w-xl text-sm leading-8 text-zinc-300 sm:text-base">اكتشف المسلسلات التركية، وشاهد الملصقات والقصص وتفاصيل المواسم والحلقات، وابحث باسم المسلسل بالعربي أو التركي أو الإنجليزي.</p>
+          <div className="mt-8 flex flex-wrap gap-3"><a href="#discover" className="inline-flex items-center gap-2 rounded-xl bg-rose-500 px-5 py-3.5 text-sm font-extrabold shadow-lg shadow-rose-950/30 hover:bg-rose-400"><Search size={17}/> ابدأ البحث</a><a href="#latest" className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[.04] px-5 py-3.5 text-sm font-bold"><Play size={16} fill="currentColor"/> تصفّح المكتبة</a></div>
+          <div className="mt-8 flex flex-wrap gap-x-5 gap-y-3 text-xs text-zinc-400"><span className="inline-flex items-center gap-2"><Languages size={15} className="text-rose-300"/> واجهة عربية</span><span className="inline-flex items-center gap-2"><Zap size={15} className="text-amber-300"/> بحث سريع</span><span className="inline-flex items-center gap-2"><Heart size={15} className="text-rose-300"/> اكتشاف سهل</span></div>
         </div>
-      </section>
-
-      <TurkishCatalog />
-
-      <section id="about" className="container pb-12 pt-4">
-        <div className="rounded-3xl border border-white/[.07] bg-gradient-to-l from-rose-500/[.07] via-white/[.025] to-transparent p-6 sm:p-8">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="max-w-2xl"><p className="text-xs font-bold text-rose-300">VIP TV</p><h2 className="mt-2 text-xl font-black">واجهة بسيطة. بحث أوضح. تفاصيل أكثر.</h2><p className="mt-2 text-sm leading-7 text-zinc-400">نعرض بيانات المسلسلات والحلقات من مصادر معلوماتية، ونربط المشاهدة فقط عندما يتوفر مصدر يملك حق إتاحتها. تشغيل الإعلانات الفعلية يتطلب ربط حساب شبكة إعلانية والموافقة على الموقع.</p></div>
-            <a href="#discover" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-bold transition hover:bg-white/[.06]"><Search size={16}/> ابحث الآن</a>
-          </div>
-        </div>
-      </section>
-
-      <footer className="border-t border-white/[.07] bg-black/20">
-        <div className="container flex flex-col gap-3 py-6 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between"><span className="text-base font-black text-white">VIP <span className="text-rose-400">TV</span></span><span>منصة لاكتشاف المسلسلات ومعلوماتها ومصادر المشاهدة.</span><span>© {new Date().getFullYear()} VIP TV</span></div>
-      </footer>
-    </main>
-  );
+        <div className="relative mx-auto w-full max-w-[440px]"><div className="poster-stack"><div className="poster-slab poster-slab-back"><span className="poster-slab-label">DRAMA</span></div><div className="poster-slab poster-slab-mid"><span className="poster-slab-label">ROMANCE</span></div><div className="poster-slab poster-slab-front"><div className="poster-vignette"/><div className="absolute right-4 top-4 rounded-full border border-white/20 bg-black/30 px-3 py-1.5 text-[11px] font-bold backdrop-blur">VIP TV</div><div className="absolute inset-x-5 bottom-6"><p className="mb-2 text-xs font-bold tracking-[.22em] text-rose-200">YOUR NEXT OBSESSION</p><p className="text-3xl font-black leading-tight sm:text-4xl">حكايات<br/>لا تُنسى</p><div className="mt-4 flex items-center gap-2 text-xs text-zinc-200"><span className="h-1.5 w-1.5 rounded-full bg-rose-400"/>دراما · رومانسية · تشويق</div></div></div></div><div className="absolute -bottom-3 -left-2 flex items-center gap-3 rounded-2xl border border-white/10 bg-[#17141b]/90 p-3.5 shadow-2xl backdrop-blur-xl"><span className="grid h-10 w-10 place-items-center rounded-xl bg-rose-500/15 text-rose-300"><Play size={18} fill="currentColor"/></span><span><span className="block text-sm font-bold">ابدأ الاكتشاف</span><span className="mt-1 block text-[11px] text-zinc-500">اختر مسلسلًا يناسبك</span></span><ChevronLeft size={16} className="mr-2 text-zinc-500"/></div></div>
+      </div>
+    </section>
+    <section className="container pt-8"><div className="grid gap-3 sm:grid-cols-3">{[{label:"مسلسلات تركية",icon:Clapperboard},{label:"الأكثر بحثًا",icon:Sparkles},{label:"أعمال جديدة",icon:Zap}].map(({label,icon:Icon})=><a key={label} href="#discover" className="quick-tile group flex items-center justify-between rounded-2xl border border-white/[.07] bg-white/[.025] p-4 hover:border-rose-400/30"><span className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-white/[.05] text-rose-300"><Icon size={18}/></span><span className="text-sm font-bold">{label}</span></span><ChevronLeft size={16} className="text-zinc-600"/></a>)}</div></section>
+    <div className="container py-8"><div className="ad-slot rounded-2xl px-4 py-4 text-center"><span className="mb-1 block text-[10px] font-bold tracking-[.22em] text-zinc-600">ADVERTISEMENT</span><span className="text-xs text-zinc-500">مساحة إعلانية — تُفعّل بعد ربط شبكة إعلانات معتمدة</span></div></div>
+    <section id="latest" className="container scroll-mt-24 pt-4"><div className="mb-5"><p className="mb-2 text-xs font-bold tracking-wide text-rose-300">مكتبة متجددة</p><h2 className="text-2xl font-black tracking-tight sm:text-3xl">اكتشف مسلسلك القادم</h2><p className="mt-2 text-sm leading-7 text-zinc-500">ملصقات وقصص وتفاصيل من قاعدة بيانات مباشرة، وليست أسماء تجريبية.</p></div></section>
+    <TurkishCatalog/>
+    <section id="about" className="container pb-12 pt-4"><div className="rounded-3xl border border-white/[.07] bg-gradient-to-l from-rose-500/[.07] via-white/[.025] to-transparent p-6 sm:p-8"><div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><div className="max-w-2xl"><p className="text-xs font-bold text-rose-300">VIP TV</p><h2 className="mt-2 text-xl font-black">واجهة بسيطة. بحث أوضح. تفاصيل أكثر.</h2><p className="mt-2 text-sm leading-7 text-zinc-400">نعرض بيانات المسلسلات والحلقات من مصادر معلوماتية، ونربط المشاهدة فقط عند توفر مصدر مخوّل. تشغيل الإعلانات الفعلية يتطلب ربط حساب شبكة إعلانية والموافقة على الموقع.</p></div><a href="#discover" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-bold hover:bg-white/[.06]"><Search size={16}/> ابحث الآن</a></div></div></section>
+    <footer className="border-t border-white/[.07] bg-black/20"><div className="container flex flex-col gap-3 py-6 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between"><span className="text-base font-black text-white">VIP <span className="text-rose-400">TV</span></span><span>منصة لاكتشاف المسلسلات ومعلوماتها ومصادر المشاهدة.</span><span>© {new Date().getFullYear()} VIP TV</span></div></footer>
+  </main>;
 }
