@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, CalendarDays, ExternalLink, Film, Star } from "lucide-react";
 
+type TVmazeChannel = { name: string; officialSite?: string | null };
 type TVmazeShow = {
   id: number;
   name: string;
@@ -17,8 +18,8 @@ type TVmazeShow = {
   image: { medium?: string; original?: string } | null;
   rating: { average: number | null } | null;
   runtime: number | null;
-  network: { name: string } | null;
-  webChannel: { name: string } | null;
+  network: TVmazeChannel | null;
+  webChannel: TVmazeChannel | null;
 };
 
 type TVmazeEpisode = {
@@ -34,6 +35,16 @@ type TVmazeEpisode = {
 
 function cleanSummary(value: string | null) {
   return (value ?? "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\s+/g, " ").trim();
+}
+
+function isHttpUrl(value: string | null | undefined): value is string {
+  if (!value) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
 }
 
 async function getShow(id: string) {
@@ -77,6 +88,9 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
     seasons.set(episode.season, list);
   }
   const summary = cleanSummary(show.summary);
+  const channel = show.webChannel ?? show.network;
+  const channelSite = isHttpUrl(channel?.officialSite) ? channel.officialSite : null;
+  const showSite = isHttpUrl(show.officialSite) ? show.officialSite : null;
 
   return (
     <main className="site-shell min-h-screen">
@@ -97,12 +111,15 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
               {show.premiered && <span className="flex items-center gap-2"><CalendarDays size={16} /> {show.premiered.slice(0, 4)}{show.ended ? ` – ${show.ended.slice(0, 4)}` : ""}</span>}
               {show.rating?.average !== null && show.rating?.average !== undefined && <span className="flex items-center gap-2"><Star size={16} className="text-amber-300" /> {show.rating.average}</span>}
               <span className="flex items-center gap-2"><Film size={16} /> {episodes.length} حلقة مسجلة</span>
-              {(show.network?.name || show.webChannel?.name) && <span>{show.network?.name ?? show.webChannel?.name}</span>}
+              {channel?.name && <span>القناة/المنصة: {channel.name}</span>}
             </div>
             <div className="mt-7 flex flex-wrap gap-3">
-              <a href={show.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm hover:bg-white/5">صفحة TVmaze <ExternalLink size={15} /></a>
-              {show.officialSite && <a href={show.officialSite} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-3 text-sm font-bold hover:bg-rose-500">الموقع الرسمي <ExternalLink size={15} /></a>}
+              <a href={show.url} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm hover:bg-white/5">صفحة TVmaze <ExternalLink size={15} /></a>
+              {showSite && <a href={showSite} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-3 text-sm font-bold hover:bg-rose-500">الموقع الرسمي للعمل <ExternalLink size={15} /></a>}
+              {channelSite && channelSite !== showSite && <a href={channelSite} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-2 rounded-xl border border-emerald-400/25 bg-emerald-400/[.07] px-4 py-3 text-sm font-bold text-emerald-200 hover:bg-emerald-400/10">موقع القناة/المنصة <ExternalLink size={15} /></a>}
             </div>
+            {!showSite && !channelSite && <p className="mt-4 text-xs leading-6 muted">لم يوفّر مصدر البيانات رابطًا رسميًا موثوقًا لهذا العمل أو قناته. لن نخمن رابط المشاهدة؛ يمكنك استخدام دليل المصادر الرسمية في الصفحة الرئيسية.</p>}
+            {(showSite || channelSite) && <p className="mt-4 text-xs leading-6 muted">هذه روابط مواقع رسمية مسجلة في بيانات TVmaze، لكنها لا تؤكد أن الحلقات متاحة للمشاهدة في منطقتك. تحقّق من صفحة العمل وشروط المنصة.</p>}
           </div>
         </div>
       </section>
@@ -114,13 +131,13 @@ export default async function TVmazeShowPage({ params }: { params: Promise<{ id:
             <h3 className="mb-3 text-lg font-extrabold">الموسم {season} <span className="text-sm font-normal muted">· {list.length} حلقة</span></h3>
             <div className="grid gap-3 md:grid-cols-2">
               {list.map((episode) => <article key={episode.id} className="glass rounded-2xl p-4">
-                <div className="flex items-start justify-between gap-3"><div><h4 className="font-bold">{episode.number ? `الحلقة ${episode.number}: ` : ""}{episode.name}</h4><p className="mt-1 text-xs muted">{[episode.airdate, episode.runtime ? `${episode.runtime} دقيقة` : null].filter(Boolean).join(" · ") || "لا تتوفر تفاصيل إضافية"}</p></div><a href={episode.url} target="_blank" rel="noreferrer" aria-label={`فتح الحلقة ${episode.name} في TVmaze`} className="shrink-0 rounded-lg border border-white/10 p-2 text-rose-300 hover:bg-white/5"><ExternalLink size={15} /></a></div>
+                <div className="flex items-start justify-between gap-3"><div><h4 className="font-bold">{episode.number ? `الحلقة ${episode.number}: ` : ""}{episode.name}</h4><p className="mt-1 text-xs muted">{[episode.airdate, episode.runtime ? `${episode.runtime} دقيقة` : null].filter(Boolean).join(" · ") || "لا تتوفر تفاصيل إضافية"}</p></div><a href={episode.url} target="_blank" rel="noreferrer noopener" aria-label={`فتح الحلقة ${episode.name} في TVmaze`} className="shrink-0 rounded-lg border border-white/10 p-2 text-rose-300 hover:bg-white/5"><ExternalLink size={15} /></a></div>
                 {cleanSummary(episode.summary) && <p className="mt-3 text-sm leading-6 muted">{cleanSummary(episode.summary)}</p>}
               </article>)}
             </div>
           </section>)}
         </div>}
-        <p className="mt-8 border-t border-white/10 pt-5 text-xs leading-6 muted">مصدر البيانات: <a href="https://www.tvmaze.com/api" target="_blank" rel="noreferrer" className="underline underline-offset-4">TVmaze API</a> (CC BY-SA؛ الإسناد والمشاركة بالمثل). الصور والبيانات لا تمنح حق بث المسلسل. تأكد من الحقوق قبل أي استخدام تجاري.</p>
+        <p className="mt-8 border-t border-white/10 pt-5 text-xs leading-6 muted">مصدر البيانات: <a href="https://www.tvmaze.com/api" target="_blank" rel="noreferrer noopener" className="underline underline-offset-4">TVmaze API</a> (CC BY-SA؛ الإسناد والمشاركة بالمثل). الصور والبيانات لا تمنح حق بث المسلسل. تأكد من الحقوق قبل أي استخدام تجاري.</p>
       </section>
       <footer className="border-t border-white/[.07]"><div className="container py-6 text-xs muted">Dizi · دليل اكتشاف الأعمال ومصادرها الرسمية.</div></footer>
     </main>
