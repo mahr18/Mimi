@@ -18,6 +18,16 @@ type TurkishShow = {
   countryCode: string | null;
 };
 
+function safeHttpUrl(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 export function TurkishCatalog() {
   const [shows, setShows] = useState<TurkishShow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +60,7 @@ export function TurkishCatalog() {
           <h2 className="section-title">مسلسلات باللغة التركية</h2>
           <p className="mt-2 max-w-2xl text-sm leading-7 muted">عناوين حقيقية تُجلب من TVmaze وتُعرض بعد التحقق من أن اللغة المسجلة تركية. توفر النتائج يعتمد على تغطية المصدر.</p>
         </div>
-        <a href="https://www.tvmaze.com/api" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-xs text-zinc-300 underline underline-offset-4 hover:text-white">مصدر البيانات <ExternalLink size={13} /></a>
+        <a href="https://www.tvmaze.com/api" target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-2 text-xs text-zinc-300 underline underline-offset-4 hover:text-white">مصدر البيانات <ExternalLink size={13} /></a>
       </div>
 
       {loading && <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">{Array.from({ length: 8 }, (_, index) => <div key={index} className="glass animate-pulse overflow-hidden rounded-2xl"><div className="aspect-[2/3] bg-white/5" /><div className="space-y-2 p-3"><div className="h-3 w-3/4 rounded bg-white/10" /><div className="h-3 w-1/2 rounded bg-white/5" /></div></div>)}</div>}
@@ -60,22 +70,26 @@ export function TurkishCatalog() {
       {!loading && !error && shows.length === 0 && <div className="glass rounded-2xl p-6 text-sm leading-7 muted">لم يُرجع المصدر نتائج مطابقة في قائمة الاكتشاف الحالية. جرّب البحث المباشر بالاسم التركي في القسم أدناه.</div>}
 
       {!loading && !error && shows.length > 0 && <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {shows.map((show) => <article key={show.id} className="group min-w-0">
-          <Link href={`/tvmaze/${show.id}`} className="block overflow-hidden rounded-2xl border border-white/10 bg-[#12151d] transition hover:-translate-y-1 hover:border-rose-400/50">
-            <div className="relative aspect-[2/3] bg-white/5">
-              {show.imageUrl ? <img src={show.imageUrl} alt={`ملصق ${show.title}`} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]" /> : <div className="grid h-full place-items-center text-5xl font-black text-rose-300">{show.title.slice(0, 1)}</div>}
-              {show.rating !== null && <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/75 px-2.5 py-1 text-xs text-amber-300 backdrop-blur"><Star size={12} fill="currentColor" />{show.rating}</span>}
+        {shows.map((show) => {
+          const officialSite = safeHttpUrl(show.officialSite);
+          return <article key={show.id} className="group min-w-0">
+            <Link href={`/tvmaze/${show.id}`} className="block overflow-hidden rounded-2xl border border-white/10 bg-[#12151d] transition hover:-translate-y-1 hover:border-rose-400/50">
+              <div className="relative aspect-[2/3] bg-white/5">
+                {show.imageUrl ? <img src={show.imageUrl} alt={`ملصق ${show.title}`} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]" /> : <div className="grid h-full place-items-center text-5xl font-black text-rose-300">{show.title.slice(0, 1)}</div>}
+                {show.rating !== null && <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/75 px-2.5 py-1 text-xs text-amber-300 backdrop-blur"><Star size={12} fill="currentColor" />{show.rating}</span>}
+              </div>
+            </Link>
+            <div className="px-1 pt-3">
+              <Link href={`/tvmaze/${show.id}`} className="line-clamp-2 text-sm font-bold leading-6 hover:text-rose-200">{show.title}</Link>
+              <p className="mt-1 text-xs muted">{[show.year, show.genres.slice(0, 1).join("")].filter(Boolean).join(" · ") || "مسلسل تركي"}</p>
+              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-2 text-xs">
+                <Link href={`/tvmaze/${show.id}`} className="text-rose-300 hover:text-rose-200">التفاصيل والحلقات</Link>
+                {officialSite && <a href={officialSite} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 text-emerald-300 hover:text-emerald-200">الموقع الرسمي <ExternalLink size={11} /></a>}
+                <a href={show.sourceUrl} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 text-zinc-400 hover:text-white">TVmaze <ExternalLink size={11} /></a>
+              </div>
             </div>
-          </Link>
-          <div className="px-1 pt-3">
-            <Link href={`/tvmaze/${show.id}`} className="line-clamp-2 text-sm font-bold leading-6 hover:text-rose-200">{show.title}</Link>
-            <p className="mt-1 text-xs muted">{[show.year, show.genres.slice(0, 1).join("")].filter(Boolean).join(" · ") || "مسلسل تركي"}</p>
-            <div className="mt-2 flex flex-wrap gap-3 text-xs">
-              <Link href={`/tvmaze/${show.id}`} className="text-rose-300 hover:text-rose-200">التفاصيل والحلقات</Link>
-              <a href={show.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-zinc-400 hover:text-white">TVmaze <ExternalLink size={11} /></a>
-            </div>
-          </div>
-        </article>)}
+          </article>;
+        })}
       </div>}
 
       <p className="mt-5 text-xs leading-6 muted">الإسناد: TVmaze · البيانات بموجب CC BY-SA. قد تكون تغطية المسلسلات التركية غير مكتملة، ولا تعني هذه الصفحة توفر حق المشاهدة أو البث.</p>
