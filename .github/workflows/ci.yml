@@ -1,4 +1,4 @@
-name: Dizi CI
+name: VIP TV CI
 
 on:
   push:

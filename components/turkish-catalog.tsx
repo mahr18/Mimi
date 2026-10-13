@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Search, Star, ChevronLeft } from "lucide-react";
 
@@ -25,6 +25,11 @@ export function TurkishCatalog() {
   const [selectedGenre, setSelectedGenre] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [requestedQuery, setRequestedQuery] = useState("");
+  const [partial, setPartial] = useState(false);
+  const [canRetry, setCanRetry] = useState(false);
+  const requestId = useRef(0);
+  const requestController = useRef<AbortController | null>(null);
 
   const availableGenres = [...new Set(shows.flatMap((show) => show.genres))].slice(0, 6);
   const visibleShows = selectedGenre
@@ -36,40 +41,71 @@ export function TurkishCatalog() {
     Romance: "رومانسي", "Science-Fiction": "خيال علمي", Thriller: "تشويق"
   };
 
-  async function loadShows(searchTerm = "", signal?: AbortSignal) {
+  async function loadShows(searchTerm = "") {
+    requestController.current?.abort();
+    const controller = new AbortController();
+    requestController.current = controller;
+    const currentRequest = ++requestId.current;
+
+    setRequestedQuery(searchTerm);
     setLoading(true);
     setError("");
+    setCanRetry(false);
+    setPartial(false);
+    if (searchTerm !== activeQuery) setSelectedGenre("");
+
     try {
       const endpoint = searchTerm
         ? `/api/tvmaze/turkish?q=${encodeURIComponent(searchTerm)}`
         : "/api/tvmaze/turkish";
-      const response = await fetch(endpoint, { signal });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "تعذر تحميل المسلسلات.");
-      setShows(Array.isArray(data.results) ? data.results : []);
+      const response = await fetch(endpoint, { signal: controller.signal });
+      const data = await response.json().catch(() => null) as {
+        results?: unknown;
+        error?: unknown;
+        partial?: unknown;
+      } | null;
+      if (!response.ok) {
+        throw new Error(typeof data?.error === "string" ? data.error : "تعذر تحميل المسلسلات.");
+      }
+      if (!Array.isArray(data?.results)) throw new Error("تعذر قراءة نتائج المسلسلات.");
+      if (currentRequest !== requestId.current) return;
+
+      setShows(data.results as TurkishShow[]);
       setActiveQuery(searchTerm);
+      setPartial(data.partial === true);
     } catch (cause) {
-      if (cause instanceof Error && cause.name === "AbortError") return;
+      if (controller.signal.aborted || currentRequest !== requestId.current) return;
       setError(cause instanceof Error ? cause.message : "تعذر تحميل المسلسلات الآن.");
+      setCanRetry(true);
     } finally {
-      if (!signal?.aborted) setLoading(false);
+      if (currentRequest === requestId.current) setLoading(false);
     }
   }
 
   useEffect(() => {
-    const controller = new AbortController();
-    void loadShows("", controller.signal);
-    return () => controller.abort();
+    void loadShows("");
+    return () => {
+      requestId.current += 1;
+      requestController.current?.abort();
+    };
   }, []);
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = query.trim();
     if (trimmed && trimmed.length < 2) {
+      requestController.current?.abort();
+      requestId.current += 1;
+      setLoading(false);
+      setCanRetry(false);
       setError("اكتب حرفين على الأقل للبحث.");
       return;
     }
     if (trimmed.length > 80) {
+      requestController.current?.abort();
+      requestId.current += 1;
+      setLoading(false);
+      setCanRetry(false);
       setError("عبارة البحث طويلة جدًا؛ الحد الأقصى 80 حرفًا.");
       return;
     }
@@ -82,7 +118,7 @@ export function TurkishCatalog() {
   }
 
   return (
-    <section id="discover" className="container scroll-mt-6 py-12">
+    <section id="discover" className="container scroll-mt-6 py-12" aria-busy={loading}>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 text-sm font-bold text-rose-300">اكتشاف مباشر</p>
@@ -98,7 +134,7 @@ export function TurkishCatalog() {
           id="turkish-show-search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="اكتب اسم المسلسل بالعربية أو التركية أو الإنجليزية..."
+          placeholder="اكتب اسم المسلسل كما يورده TVmaze..."
           maxLength={80}
           className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-rose-400/60"
         />
@@ -111,11 +147,12 @@ export function TurkishCatalog() {
       {!loading && !error && availableGenres.length > 0 && <div className="catalog-filters mb-6" aria-label="تصفية حسب النوع"><span className="catalog-filter-label">تصفية حسب النوع</span><div className="flex gap-2 overflow-x-auto pb-1">{["", ...availableGenres].map((genre) => <button key={genre || "all"} type="button" onClick={() => setSelectedGenre(genre)} aria-pressed={selectedGenre === genre} className={`catalog-chip ${selectedGenre === genre ? "catalog-chip-active" : ""}`}>{genre ? genreLabels[genre] ?? genre : "الكل"}</button>)}</div></div>}
 
       {activeQuery && !loading && <p className="mb-4 text-sm muted">نتائج البحث عن: <span className="font-semibold text-white">{activeQuery}</span></p>}
+      {!loading && !error && partial && <p role="status" className="mb-4 rounded-xl border border-amber-300/20 bg-amber-300/[.05] px-4 py-3 text-sm leading-6 text-amber-100">تعذّر تحميل بعض عمليات البحث من TVmaze؛ قد تكون هذه القائمة غير مكتملة.</p>}
       {!loading && !error && shows.length > 0 && <p className="mb-3 text-xs text-zinc-500">{selectedGenre ? `${genreLabels[selectedGenre] ?? selectedGenre} · ` : ""}{visibleShows.length} نتيجة من بيانات TVmaze</p>}
 
       {loading && <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">{Array.from({ length: 8 }, (_, index) => <div key={index} className="glass animate-pulse overflow-hidden rounded-2xl"><div className="aspect-[2/3] bg-white/5" /><div className="space-y-2 p-3"><div className="h-3 w-3/4 rounded bg-white/10" /><div className="h-3 w-1/2 rounded bg-white/5" /></div></div>)}</div>}
 
-      {!loading && error && <div role="alert" className="glass rounded-2xl p-6"><p className="text-sm text-rose-200">{error}</p><button onClick={() => void loadShows(activeQuery)} className="mt-3 rounded-lg border border-white/10 px-4 py-2 text-sm hover:bg-white/5">إعادة المحاولة</button></div>}
+      {!loading && error && <div role="alert" className="glass rounded-2xl p-6"><p className="text-sm text-rose-200">{error}</p>{canRetry && <button onClick={() => void loadShows(requestedQuery)} className="mt-3 rounded-lg border border-white/10 px-4 py-2 text-sm hover:bg-white/5">إعادة المحاولة</button>}</div>}
 
       {!loading && !error && shows.length === 0 && <div className="glass rounded-2xl p-6 text-sm leading-7 muted">{activeQuery ? "ما لقينا نتائج مطابقة باللغة التركية لهذا الاسم في TVmaze. جرّب كتابة الاسم الأصلي أو تهجئة مختلفة." : "لم يُرجع المصدر نتائج مطابقة في قائمة الاكتشاف الحالية."}</div>}
       {!loading && !error && shows.length > 0 && visibleShows.length === 0 && <div className="glass rounded-2xl p-6 text-sm leading-7 muted">ما فيه نتيجة من هذا النوع ضمن النتائج الحالية. جرّب نوعًا ثانيًا أو اختر «الكل».</div>}

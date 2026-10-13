@@ -52,6 +52,25 @@ export async function GET(request: NextRequest) {
     }
 
     const responses = await Promise.allSettled(discoveryQueries.map(searchTVmaze));
+    const failedResponses = responses.filter((response) => response.status === "rejected");
+    const successfulResponses = responses.filter((response) => response.status === "fulfilled");
+
+    if (successfulResponses.length === 0) {
+      const rateLimitFailure = failedResponses.find(
+        (response) => response.status === "rejected" &&
+          response.reason instanceof Error &&
+          response.reason.message === "TVMAZE_RATE_LIMIT"
+      );
+      const representativeFailure = rateLimitFailure ??
+        failedResponses.find((response) => response.status === "rejected");
+      const failure = tvmazeErrorResponse(
+        representativeFailure?.status === "rejected" ? representativeFailure.reason : undefined
+      );
+      return NextResponse.json(
+        { results: [], error: failure.message },
+        { status: failure.status, headers: failure.headers }
+      );
+    }
 
     const unique = new Map<number, TVMazeShow>();
     for (const response of responses) {
@@ -68,9 +87,17 @@ export async function GET(request: NextRequest) {
       .slice(0, 24)
       .map(normalizeShow);
 
+    const cacheControl = failedResponses.length > 0
+      ? "public, s-maxage=300, stale-while-revalidate=900"
+      : "public, s-maxage=21600, stale-while-revalidate=86400";
+
     return NextResponse.json(
-      { results, attribution: { name: "TVmaze", url: "https://www.tvmaze.com/" } },
-      { headers: { "Cache-Control": "public, s-maxage=21600, stale-while-revalidate=86400" } }
+      {
+        results,
+        partial: failedResponses.length > 0,
+        attribution: { name: "TVmaze", url: "https://www.tvmaze.com/" }
+      },
+      { headers: { "Cache-Control": cacheControl } }
     );
   } catch (error) {
     const failure = tvmazeErrorResponse(error);

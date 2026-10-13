@@ -9,7 +9,6 @@ const nextConfig: NextConfig = {
   async headers() {
     const embedOrigins = [...new Set([
       "https://www.youtube-nocookie.com",
-      "https://w.anaplayer.online",
       ...parsePlaybackOrigins(process.env.PLAYBACK_EMBED_ORIGINS)
     ])];
     const mediaOrigins = parsePlaybackOrigins(process.env.PLAYBACK_MEDIA_ORIGINS);

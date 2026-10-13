@@ -125,6 +125,9 @@ export default function AuthorizedEpisodeList({ episodes }: { episodes: Episode[
             <span>الصوت: {selected.playback.audioLanguages.join("، ") || "غير محدد"}</span>
             <span>الترجمة: {selected.playback.subtitleLanguages.join("، ") || "غير متاحة"}</span>
           </div>
+          <p className="mt-3 text-xs leading-6 text-zinc-500">
+            الفيديو مستضاف لدى مزوّده؛ الإعلانات أو العائد داخل المشغّل تتبع إعدادات ذلك المزوّد ولا تُسجّل تلقائيًا ضمن عائد VIP TV.
+          </p>
         </section>
       )}
     </>
