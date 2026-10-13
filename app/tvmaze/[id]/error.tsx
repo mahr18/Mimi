@@ -11,7 +11,7 @@ export default function TVmazeDetailsError({ reset }: { error: Error & { digest?
         <p className="mt-3 text-sm leading-7 muted">قد يكون مصدر البيانات متوقفًا مؤقتًا. جرّب إعادة المحاولة، أو ارجع للبحث بدون فقدان بقية الموقع.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <button onClick={() => reset()} className="rounded-xl bg-rose-600 px-5 py-3 text-sm font-bold hover:bg-rose-500">إعادة المحاولة</button>
-          <Link href="/#discover" className="rounded-xl border border-white/10 px-5 py-3 text-sm hover:bg-white/5">العودة إلى Dizi</Link>
+          <Link href="/#discover" className="rounded-xl border border-white/10 px-5 py-3 text-sm hover:bg-white/5">العودة إلى VIP TV</Link>
         </div>
       </section>
     </main>
